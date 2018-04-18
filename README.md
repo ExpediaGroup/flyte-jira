@@ -1,4 +1,7 @@
 ## Overview
+
+![Build Status](https://travis-ci.org/HotelsDotCom/flyte-jira.svg?branch=master)
+
 The Jira pack provides the ability to create tickets, comment on tickets and
 to get info about tickets.
 
