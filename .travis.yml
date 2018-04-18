@@ -21,4 +21,4 @@ deploy:
   script:
     - docker push $IMAGE:$MAJOR_VERSION.$TRAVIS_BUILD_NUMBER
   on:
-branch: master
+    branch: master
