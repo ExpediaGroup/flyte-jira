@@ -1,0 +1,10 @@
+sudo: required
+
+env:
+  - MAJOR_VERSION=1
+
+services:
+  - docker
+
+script:
+  - docker build -t hotelsdotcom/flyte-jira:$MAJOR_VERSION.$TRAVIS_BUILD_NUMBER .
