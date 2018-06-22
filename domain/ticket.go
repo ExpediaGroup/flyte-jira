@@ -16,7 +16,7 @@ limitations under the License.
 
 package domain
 
-type Ticket struct {
+type Issue struct {
 	Fields Fields `json:"fields"`
 	Key    string `json:"key"`
 }

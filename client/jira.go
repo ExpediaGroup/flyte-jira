@@ -38,7 +38,7 @@ type Comment struct {
 	Body string `json:"body"`
 }
 
-type TicketRequest struct {
+type IssueRequest struct {
 	Fields RequestFields `json:"fields"`
 }
 
@@ -56,85 +56,85 @@ type IssueTypeRequest struct {
 	Name string `json:"name"`
 }
 
-func CommentTicket(ticketId, comment string) (domain.Ticket, error) {
-	var ticket domain.Ticket
+func CommentIssue(issueId, comment string) (domain.Issue, error) {
+	var issue domain.Issue
 	b, err := json.Marshal(Comment{comment})
 	if err != nil {
-		return ticket, err
+		return issue, err
 	}
 
-	path := fmt.Sprintf("/rest/api/2/issue/%s/comment", ticketId)
+	path := fmt.Sprintf("/rest/api/2/issue/%s/comment", issueId)
 	request, err := constructPostRequest(path, string(b))
 	if err != nil {
-		return ticket, err
+		return issue, err
 	}
 
-	statusCode, err := SendRequest(request, &ticket)
+	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusCreated {
-		err = fmt.Errorf("ticketId=%s : statusCode=%d", ticketId, statusCode)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueId=%s : statusCode=%d", issueId, statusCode)
+		return domain.Issue{}, err
 	}
 	if err != nil {
-		err = fmt.Errorf("ticketId=%s : err=%v", ticketId, err)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueId=%s : err=%v", issueId, err)
+		return domain.Issue{}, err
 	}
 
-	return ticket, nil
+	return issue, nil
 }
 
-func GetTicketInfo(ticketId string) (domain.Ticket, error) {
-	var ticket domain.Ticket
-	path := fmt.Sprintf("/rest/api/2/issue/%s", ticketId)
+func GetIssueInfo(issueId string) (domain.Issue, error) {
+	var issue domain.Issue
+	path := fmt.Sprintf("/rest/api/2/issue/%s", issueId)
 
 	request, err := constructGetRequest(path)
 	if err != nil {
-		return ticket, err
+		return issue, err
 	}
 
-	statusCode, err := SendRequest(request, &ticket)
+	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusOK {
-		err = fmt.Errorf("ticketId=%s : statusCode=%d", ticketId, statusCode)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueId=%s : statusCode=%d", issueId, statusCode)
+		return domain.Issue{}, err
 	}
 	if err != nil {
-		err = fmt.Errorf("ticketId=%s : err=%v", ticketId, err)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueId=%s : err=%v", issueId, err)
+		return domain.Issue{}, err
 	}
 
-	return ticket, nil
+	return issue, nil
 }
 
-func CreateTicket(project, issueType, title string) (domain.Ticket, error) {
-	var ticket domain.Ticket
-	ticketRequest := newCreateTicketRequest(project, issueType, title)
-	b, err := json.Marshal(ticketRequest)
+func CreateIssue(project, issueType, title string) (domain.Issue, error) {
+	var issue domain.Issue
+	issueRequest := newCreateIssueRequest(project, issueType, title)
+	b, err := json.Marshal(issueRequest)
 	if err != nil {
-		return ticket, err
+		return issue, err
 	}
 
 	path := "/rest/api/2/issue/"
 	request, err := constructPostRequest(path, string(b))
 	if err != nil {
-		return ticket, err
+		return issue, err
 	}
-	statusCode, err := SendRequest(request, &ticket)
+	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusCreated {
-		err = fmt.Errorf("ticketTitle='%s' : statusCode=%d", title, statusCode)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueTitle='%s' : statusCode=%d", title, statusCode)
+		return domain.Issue{}, err
 	}
 	if err != nil {
-		err = fmt.Errorf("ticketTitle=%s : err=%v", title, err)
-		return domain.Ticket{}, err
+		err = fmt.Errorf("issueTitle=%s : err=%v", title, err)
+		return domain.Issue{}, err
 	}
-	return ticket, nil
+	return issue, nil
 }
 
-func newCreateTicketRequest(projectKey, issueType, summary string) TicketRequest {
+func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 	project := ProjectRequest{projectKey}
 	issue := IssueTypeRequest{issueType}
 
 	fields := RequestFields{Project: project, Summary: summary, IssueType: issue}
-	return TicketRequest{Fields: fields}
+	return IssueRequest{Fields: fields}
 }
 
 func constructGetRequest(path string) (*http.Request, error) {

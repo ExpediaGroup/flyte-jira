@@ -24,13 +24,13 @@ import (
 	"github.com/HotelsDotCom/flyte-jira/client"
 )
 
-var CreateTicketCommand = flyte.Command{
-	Name:         "CreateTicket",
+var CreateIssueCommand = flyte.Command{
+	Name:         "CreateIssue",
 	OutputEvents: []flyte.EventDef{createEventDef, createFailureEventDef},
-	Handler:      createTicketHandler,
+	Handler:      createIssueHandler,
 }
 
-func createTicketHandler(input json.RawMessage) flyte.Event {
+func createIssueHandler(input json.RawMessage) flyte.Event {
 	var handlerInput struct {
 		Project   string `json:"project"`
 		IssueType string `json:"issueType"`
@@ -38,21 +38,21 @@ func createTicketHandler(input json.RawMessage) flyte.Event {
 	}
 
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
-		err := fmt.Errorf("Could not marshal create client ticket input: %s", err)
+		err := fmt.Errorf("Could not marshal create client issue input: %s", err)
 		log.Println(err)
 		return newCreateFailureEvent(err.Error(), "unknown", "unknown", "unkown")
 	}
-	ticket, err := client.CreateTicket(handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
+	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
 	if err != nil {
-		err = fmt.Errorf("Could not create ticket: %v", err)
+		err = fmt.Errorf("Could not create issue: %v", err)
 		log.Println(err)
 		return newCreateFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
 	}
-	return newCreateEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, ticket.Key), ticket.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
+	return newCreateEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
 }
 
 var createEventDef = flyte.EventDef{
-	Name: "CreateTicket",
+	Name: "CreateIssue",
 }
 
 type createSuccessPayload struct {
@@ -64,7 +64,7 @@ type createSuccessPayload struct {
 }
 
 var createFailureEventDef = flyte.EventDef{
-	Name: "CreateTicketFailure",
+	Name: "CreateIssueFailure",
 }
 
 type createFailurePayload struct {

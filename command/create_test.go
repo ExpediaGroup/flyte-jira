@@ -23,7 +23,7 @@ import (
 	"testing"
 )
 
-func TestCreateTicketAsExpected(t *testing.T) {
+func TestCreateIssueAsExpected(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusCreated, nil
 	}
@@ -35,14 +35,14 @@ func TestCreateTicketAsExpected(t *testing.T) {
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 
-	actualEvent := createTicketHandler(input)
+	actualEvent := createIssueHandler(input)
 	expectedEvent := newCreateEvent("/browse/", "", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
 }
 
-func TestCreateTicketFailure(t *testing.T) {
+func TestCreateIssueFailure(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusBadRequest, nil
 	}
@@ -54,8 +54,8 @@ func TestCreateTicketFailure(t *testing.T) {
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 
-	actualEvent := createTicketHandler(input)
-	expectedEvent := newCreateFailureEvent("Could not create ticket: ticketTitle='test story' : statusCode=400", "FLYTE", "Story", "test story")
+	actualEvent := createIssueHandler(input)
+	expectedEvent := newCreateFailureEvent("Could not create issue: issueTitle='test story' : statusCode=400", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}

@@ -4,8 +4,8 @@
 [![Docker Stars](https://img.shields.io/docker/stars/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
 
-The Jira pack provides the ability to create tickets, comment on tickets and
-to get info about tickets.
+The Jira pack provides the ability to create issues, comment on issues and
+to get info about issues.
 
 
 ## Build & Run
@@ -24,11 +24,11 @@ To build and run from docker
 * All of these environment variables need to be set
 
 ## Commands
-This pack provides three commands: `CommentTicket`, `TicketInfo` and `CreateTicket`.
-### ticketInfo command
-This command returns information about a specific ticket.
+This pack provides three commands: `CommentIssue`, `IssueInfo` and `CreateIssue`.
+### issueInfo command
+This command returns information about a specific issue.
 #### Input
-This commands input is the id of the desired ticket:
+This commands input is the id of the desired issue:
 ```
 "input" : "TEST-123",
 ```
@@ -46,7 +46,7 @@ This is the success event, it contains the Id, Summary, Status, Description and 
 }
 ```
 ##### InfoFailure event
-This contains the id of the ticket and the error.
+This contains the id of the issue and the error.
 ```
 "payload": {
     "id" : "TEST-123",
@@ -54,10 +54,10 @@ This contains the id of the ticket and the error.
 }
 ```
 
-### CreateTicket command
-This command creates a jira ticket.
+### CreateIssue command
+This command creates a jira issue.
 #### Input
-This commands input is the project the ticket should be created under, the issue type and the title.
+This commands input is the project the issue should be created under, the issue type and the title.
 ```
 "input": {
     "project": "TEST",
@@ -66,9 +66,9 @@ This commands input is the project the ticket should be created under, the issue
     }
 ```
 #### Output
-This command can return either a `CreateTicket` event or a `CreateTicketFailure` event. 
-##### CreatedTicket event
-This is the success event, it contains the id of the ticket and the url of the ticket along with the input(project, 
+This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
+##### CreatedIssue event
+This is the success event, it contains the id of the issue and the url of the issue along with the input(project,
 issue_type & title) It returns them in the form:
 ```
 "payload": {
@@ -79,21 +79,21 @@ issue_type & title) It returns them in the form:
     "title": "Fix csetcd bug"
 }
 ```
-##### CreateTicketFailure event
-This contains the error if the ticket cannot be created along with the input (project, issue_type & title):
+##### CreateIssueFailure event
+This contains the error if the issue cannot be created along with the input (project, issue_type & title):
 ```
 "payload": {
-    "error": "Cannot create ticket: Fix csetcd bug: status code 400",
+    "error": "Cannot create issue: Fix csetcd bug: status code 400",
     "project": "TEST",
     "issue_type": "Story",
     "title": "Fix csetcd bug"
 }
 ```
 
-### CommentTicket command
+### CommentIssue command
 This command comments on an issue.
 #### Input
-This commands input is the id of the ticket and the comment to be added. 
+This commands input is the id of the issue and the comment to be added.
 ```
 "input": {
     "id": "TEST-123",
@@ -103,7 +103,7 @@ This commands input is the id of the ticket and the comment to be added.
 #### Output
 This command can return either a `Comment` event or a `CommentFailure` event. 
 ##### Comment event
-This is the success event, it contains the id of the ticket, the comment and the status. 
+This is the success event, it contains the id of the issue, the comment and the status.
 Status is the status code returned when a comment is left successfully.
 ```
 "payload": {
@@ -112,12 +112,12 @@ Status is the status code returned when a comment is left successfully.
 }
 ```
 ##### CommentFailure event
-This returns the error if a ticket cannot be commented on successfully. It contains, the ticket id, the comment and
+This returns the error if a issue cannot be commented on successfully. It contains, the issue id, the comment and
 the error:
 ```
 "payload": {
     "id": "TEST-123",
     "comment": "Added to backlog",
-    "error": "Could not comment on ticket: status code 400"
+    "error": "Could not comment on issue: status code 400"
 }
 ```

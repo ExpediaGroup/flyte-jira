@@ -26,29 +26,29 @@ import (
 	"github.com/HotelsDotCom/flyte-jira/domain"
 )
 
-var TicketInfoCommand = flyte.Command{
-	Name:         "TicketInfo",
+var IssueInfoCommand = flyte.Command{
+	Name:         "IssueInfo",
 	OutputEvents: []flyte.EventDef{infoEventDef, infoFailureEventDef},
 	Handler:      infoHandler,
 }
 
 func infoHandler(input json.RawMessage) flyte.Event {
 	var id string
-	ticket := domain.Ticket{}
+	issue := domain.Issue{}
 
 	if err := json.Unmarshal(input, &id); err != nil {
-		err := errors.New(fmt.Sprintf("Could not marshal ticket id: %s", err))
+		err := errors.New(fmt.Sprintf("Could not marshal issue id: %s", err))
 		log.Println(err)
 		return newInfoFailureEvent(err.Error(), "unkown")
 	}
 
-	ticket, err := client.GetTicketInfo(id)
+	issue, err := client.GetIssueInfo(id)
 	if err != nil {
 		err := errors.New(fmt.Sprintf("Could not get info: %v", err))
 		log.Println(err)
 		return newInfoFailureEvent(err.Error(), id)
 	}
-	return newInfoEvent(ticket)
+	return newInfoEvent(issue)
 }
 
 var infoEventDef = flyte.EventDef{
@@ -66,7 +66,7 @@ func newInfoFailureEvent(err, id string) flyte.Event {
 	}
 }
 
-func newInfoEvent(t domain.Ticket) flyte.Event {
+func newInfoEvent(t domain.Issue) flyte.Event {
 	return flyte.Event{
 		EventDef: infoEventDef,
 		Payload: infoSuccessPayload{
