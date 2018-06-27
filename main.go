@@ -35,7 +35,7 @@ func main() {
 	packDef := flyte.PackDef{
 		Name:     "Jira",
 		HelpURL:  getUrl("https://github.com/HotelsDotCom/flyte-jira/blob/master/README.md"),
-		Commands: []flyte.Command{command.TicketInfoCommand, command.CreateTicketCommand, command.TicketCommentCommand},
+		Commands: []flyte.Command{command.IssueInfoCommand, command.CreateIssueCommand, command.IssueCommentCommand},
 	}
 
 	p := flyte.NewPack(packDef, client.NewClient(hostUrl, 10*time.Second))

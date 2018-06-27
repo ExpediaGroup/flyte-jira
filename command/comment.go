@@ -24,8 +24,8 @@ import (
 	"github.com/HotelsDotCom/flyte-jira/client"
 )
 
-var TicketCommentCommand = flyte.Command{
-	Name:         "CommentTicket",
+var IssueCommentCommand = flyte.Command{
+	Name:         "CommentIssue",
 	OutputEvents: []flyte.EventDef{commentEventDef, commentFailureEventDef},
 	Handler:      commentHandler,
 }
@@ -42,7 +42,7 @@ func commentHandler(input json.RawMessage) flyte.Event {
 		return newCommentFailureEvent(err.Error(), "unknown", "unkown")
 	}
 
-	_, err := client.CommentTicket(handlerInput.Id, handlerInput.Comment)
+	_, err := client.CommentIssue(handlerInput.Id, handlerInput.Comment)
 	if err != nil {
 		err = fmt.Errorf("Could not leave comment: %s", err)
 		log.Println(err)

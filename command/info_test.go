@@ -31,8 +31,8 @@ func TestGetInfoWorkingAsExpected(t *testing.T) {
 	input := toJson("Test", t)
 	actualEvent := infoHandler(input)
 
-	// Ticket empty because it's populated in Send request
-	expectedEvent := newInfoEvent(domain.Ticket{})
+	// Issue empty because it's populated in Send request
+	expectedEvent := newInfoEvent(domain.Issue{})
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
 	}
@@ -45,8 +45,8 @@ func TestGetInfoFailure(t *testing.T) {
 	input := toJson("Test", t)
 	actualEvent := infoHandler(input)
 
-	// Ticket empty because it's populated in Send request
-	expectedEvent := newInfoFailureEvent("Could not get info: ticketId=Test : statusCode=400", "Test")
+	// Issue empty because it's populated in Send request
+	expectedEvent := newInfoFailureEvent("Could not get info: issueId=Test : statusCode=400", "Test")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
 	}
