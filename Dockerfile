@@ -10,7 +10,7 @@ RUN go test ./...
 RUN go build
 
 # Run image
-FROM alpine:3.7
+FROM alpine:3.10
 COPY --from=build-env /app/flyte-jira .
 
 
