@@ -17,13 +17,13 @@ limitations under the License.
 package main
 
 import (
-	"log"
-	"net/url"
-	"os"
 	"github.com/HotelsDotCom/flyte-client/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	jira "github.com/HotelsDotCom/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-jira/command"
+	"log"
+	"net/url"
+	"os"
 	"time"
 )
 

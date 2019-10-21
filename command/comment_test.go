@@ -17,9 +17,9 @@ limitations under the License.
 package command
 
 import (
+	"github.com/HotelsDotCom/flyte-jira/client"
 	"net/http"
 	"reflect"
-	"github.com/HotelsDotCom/flyte-jira/client"
 	"testing"
 )
 
@@ -53,7 +53,7 @@ func TestFailedComment(t *testing.T) {
 	input := toJson(inputStruct, t)
 
 	actualEvent := commentHandler(input)
-	expectedEvent := newCommentFailureEvent("Could not leave comment: issueId=TEST-123 : statusCode=400", "TEST-123", "test comment")
+	expectedEvent := newCommentFailureEvent("could not leave comment: issueId=TEST-123 : statusCode=400", "TEST-123", "test comment")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
 	}

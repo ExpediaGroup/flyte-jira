@@ -19,9 +19,9 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"github.com/HotelsDotCom/flyte-jira/client"
+	"log"
 )
 
 var IssueCommentCommand = flyte.Command{
@@ -37,14 +37,14 @@ func commentHandler(input json.RawMessage) flyte.Event {
 	}
 
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
-		err = fmt.Errorf("Could not marshal comment into json: %s", err)
+		err = fmt.Errorf("could not marshal comment into json: %s", err)
 		log.Println(err)
 		return newCommentFailureEvent(err.Error(), "unknown", "unkown")
 	}
 
 	_, err := client.CommentIssue(handlerInput.Id, handlerInput.Comment)
 	if err != nil {
-		err = fmt.Errorf("Could not leave comment: %s", err)
+		err = fmt.Errorf("could not leave comment: %s", err)
 		log.Println(err)
 		return newCommentFailureEvent(err.Error(), handlerInput.Id, handlerInput.Comment)
 	}

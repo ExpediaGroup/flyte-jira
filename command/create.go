@@ -19,9 +19,9 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"github.com/HotelsDotCom/flyte-jira/client"
+	"log"
 )
 
 var CreateIssueCommand = flyte.Command{

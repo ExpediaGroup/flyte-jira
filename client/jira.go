@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/HotelsDotCom/flyte-jira/domain"
+	"net/http"
 	"strings"
 )
 
