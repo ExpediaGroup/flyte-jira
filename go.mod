@@ -1,6 +1,6 @@
 module github.com/HotelsDotCom/flyte-jira
 
-go 1.14
+go 1.13
 
 require (
 	github.com/HotelsDotCom/flyte-client v0.0.0-20180416133849-e6fac3e89d97
