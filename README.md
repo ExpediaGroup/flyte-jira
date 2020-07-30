@@ -12,15 +12,14 @@ to get info about issues.
 ### Command Line
 To build and run from the command line:
 * Clone this repo
-* Run `dep ensure` (must have [dep](https://github.com/golang/dep) installed)
 * Run `go build`
-* Run `FLYTE_API_URL=http://.../ JIRA_HOST=https://... JIRA_USER=... JIRA_PASSWORD=... ./flye-jira`
+* Run `FLYTE_API_URL=http://.../ JIRA_HOST=https://... JIRA_USER=... JIRA_PASSWORD=... ./flyte-jira`
 * Fill in this command with the relevant API url, jira host, jira user and jira password environment variables
 
 ### Docker
 To build and run from docker
-* Run `docker build -t flye-jira .`
-* Run `docker run -e FLYTE_API_URL=http://.../ -e JIRA_HOST=https://... -e JIRA_USER=... -e JIRA_PASSWORD=... flye-jira`
+* Run `docker build -t flyte-jira .`
+* Run `docker run -e FLYTE_API_URL=http://.../ -e JIRA_HOST=https://... -e JIRA_USER=... -e JIRA_PASSWORD=... flyte-jira`
 * All of these environment variables need to be set
 
 ## Commands
