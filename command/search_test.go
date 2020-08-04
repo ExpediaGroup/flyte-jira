@@ -23,38 +23,50 @@ import (
 	"testing"
 )
 
-func TestSucessfulComment(t *testing.T) {
+func TestSearchIssuesSuccess(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
-		return http.StatusCreated, nil
+		return http.StatusOK, nil
 	}
-	var inputStruct = struct {
-		Id      string `json:"id"`
-		Comment string `json:"comment"`
-	}{"TEST-123", "test comment"}
 
+	var inputStruct = struct {
+		Query string `json:"query"`
+	}{"project = FLYTE"}
 	input := toJson(inputStruct, t)
 
-	actualEvent := commentHandler(input)
-	expectedEvent := newCommentEvent("TEST-123", "test comment")
+	actualEvent := searchIssuesHandler(input)
+	expectedEvent := newSearchSuccessEvent("project = FLYTE", 0, 10, 0, nil)
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
-		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
 }
 
-func TestFailedComment(t *testing.T) {
+func TestSearchIssuesFailure(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusBadRequest, nil
 	}
 
 	var inputStruct = struct {
-		Id      string `json:"id"`
-		Comment string `json:"comment"`
-	}{"TEST-123", "test comment"}
+		Query string `json:"query"`
+	}{"project = FLYTE"}
 	input := toJson(inputStruct, t)
 
-	actualEvent := commentHandler(input)
-	expectedEvent := newCommentFailureEvent("Could not leave comment: issueId=TEST-123 : statusCode=400", "TEST-123", "test comment")
+	actualEvent := searchIssuesHandler(input)
+	expectedEvent := newSearchFailureEvent("project = FLYTE", 0, 10, "Could not search for issues: query='project = FLYTE' : statusCode=400")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
-		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+	}
+}
+
+func TestSearchIssuesEmptyQuery(t *testing.T) {
+
+	var inputStruct = struct {
+		Query string `json:"query"`
+	}{""}
+	input := toJson(inputStruct, t)
+
+	actualEvent := searchIssuesHandler(input)
+	expectedEvent := newSearchFailureEvent("", 0, 10, "Empty query string")
+	if !reflect.DeepEqual(actualEvent, expectedEvent) {
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
 }

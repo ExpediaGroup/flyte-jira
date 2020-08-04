@@ -20,8 +20,8 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"net/http"
 	"github.com/HotelsDotCom/flyte-jira/domain"
+	"net/http"
 	"strings"
 )
 
@@ -54,6 +54,20 @@ type ProjectRequest struct {
 
 type IssueTypeRequest struct {
 	Name string `json:"name"`
+}
+
+type SearchRequestType struct {
+	Query      string   `json:"jql"`
+	StartIndex int      `json:"startAt"`
+	MaxResults int      `json:"maxResults"`
+	Fields     []string `json:"fields"`
+}
+
+type SearchResult struct {
+	StartIndex   int            `json:"startAt"`
+	MaxResults   int            `json:"maxResults"`
+	TotalResults int            `json:"total"`
+	Issues       []domain.Issue `json:"issues"'`
 }
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
@@ -129,12 +143,49 @@ func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 	return issue, nil
 }
 
+func SearchIssues(query string, startIndex int, maxResults int) (SearchResult, error) {
+	var searchResult SearchResult
+
+	requestBody := newSearchRequestBody(query, startIndex, maxResults)
+	encodedBody, err := json.Marshal(requestBody)
+	if err != nil {
+		return searchResult, err
+	}
+
+	path := "/rest/api/2/search"
+	request, err := constructPostRequest(path, string(encodedBody))
+	if err != nil {
+		return searchResult, err
+	}
+	statusCode, err := SendRequest(request, &searchResult)
+
+	if statusCode != http.StatusOK {
+		err := fmt.Errorf("query='%s' : statusCode=%d", query, statusCode)
+		return searchResult, err
+	}
+	if err != nil {
+		err := fmt.Errorf("query='%s' : error=%d", query, err)
+		return searchResult, err
+	}
+
+	return searchResult, nil
+}
+
 func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 	project := ProjectRequest{projectKey}
 	issue := IssueTypeRequest{issueType}
 
 	fields := RequestFields{Project: project, Summary: summary, IssueType: issue}
 	return IssueRequest{Fields: fields}
+}
+
+func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRequestType {
+	return SearchRequestType{
+		query,
+		startIndex,
+		maxResults,
+		[]string{"summary", "assignee", "labels", "status", "description", "priority"},
+	}
 }
 
 func constructGetRequest(path string) (*http.Request, error) {
