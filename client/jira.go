@@ -157,14 +157,14 @@ func SearchIssues(query string, startIndex int, maxResults int) (SearchResult, e
 	if err != nil {
 		return searchResult, err
 	}
-	statusCode, err := SendRequest(request, &searchResult)
 
-	if statusCode != http.StatusOK {
-		err := fmt.Errorf("query='%s' : statusCode=%d", query, statusCode)
+	statusCode, err := SendRequest(request, &searchResult)
+	if err != nil {
+		err := fmt.Errorf("query='%s' : error=%v", query, err)
 		return searchResult, err
 	}
-	if err != nil {
-		err := fmt.Errorf("query='%s' : error=%d", query, err)
+	if statusCode != http.StatusOK {
+		err := fmt.Errorf("query='%s' : statusCode=%d", query, statusCode)
 		return searchResult, err
 	}
 

@@ -17,55 +17,86 @@ limitations under the License.
 package command
 
 import (
+	"errors"
 	"github.com/HotelsDotCom/flyte-jira/client"
+	"github.com/HotelsDotCom/flyte-jira/domain"
 	"net/http"
 	"reflect"
 	"testing"
 )
 
 func TestSearchIssuesSuccess(t *testing.T) {
+	initialSendRequest := client.SendRequest
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusOK, nil
 	}
+	defer func() { client.SendRequest = initialSendRequest }()
 
-	var inputStruct = struct {
-		Query string `json:"query"`
-	}{"project = FLYTE"}
-	input := toJson(inputStruct, t)
+	actualEvent := searchIssuesHandler([]byte(`{"query": "project = FLYTE"}`))
 
-	actualEvent := searchIssuesHandler(input)
-	expectedEvent := newSearchSuccessEvent("project = FLYTE", 0, 10, 0, nil)
+	expectedEvent := newSearchSuccessEvent(SearchIssuesInput{"project = FLYTE", 0, 10}, 0, nil)
+
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
 }
 
 func TestSearchIssuesFailure(t *testing.T) {
+	initialSendRequest := client.SendRequest
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusBadRequest, nil
 	}
+	defer func() { client.SendRequest = initialSendRequest }()
 
-	var inputStruct = struct {
-		Query string `json:"query"`
-	}{"project = FLYTE"}
-	input := toJson(inputStruct, t)
+	actualEvent := searchIssuesHandler([]byte(`{"query": "project = FLYTE"}`))
+	expectedEvent := newSearchFailureEvent(SearchIssuesInput{"project = FLYTE", 0, 10}, errors.New("Could not search for issues: query='project = FLYTE' : statusCode=400"))
 
-	actualEvent := searchIssuesHandler(input)
-	expectedEvent := newSearchFailureEvent("project = FLYTE", 0, 10, "Could not search for issues: query='project = FLYTE' : statusCode=400")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
 }
 
 func TestSearchIssuesEmptyQuery(t *testing.T) {
+	actualEvent := searchIssuesHandler([]byte(`{"query": ""}`))
+	expectedEvent := newSearchFailureEvent(SearchIssuesInput{"", 0, 10}, errors.New("Empty query string"))
 
-	var inputStruct = struct {
-		Query string `json:"query"`
-	}{""}
-	input := toJson(inputStruct, t)
+	if !reflect.DeepEqual(actualEvent, expectedEvent) {
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+	}
+}
 
-	actualEvent := searchIssuesHandler(input)
-	expectedEvent := newSearchFailureEvent("", 0, 10, "Empty query string")
+func TestRequestError(t *testing.T) {
+	initialSendRequest := client.SendRequest
+	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
+		return -1, errors.New("request timed out")
+	}
+	defer func() { client.SendRequest = initialSendRequest }()
+
+	actualEvent := searchIssuesHandler([]byte(`{"query": "project = FLYTE"}`))
+	expectedEvent := newSearchFailureEvent(SearchIssuesInput{"project = FLYTE", 0, 10}, errors.New("Could not search for issues: query='project = FLYTE' : error=request timed out"))
+
+	if !reflect.DeepEqual(actualEvent, expectedEvent) {
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+	}
+}
+
+func TestIssueFormatting(t *testing.T) {
+	initialSendRequest := client.SendRequest
+	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
+		p := client.SearchResult{
+			TotalResults: 2,
+			Issues:       []domain.Issue{createDummyIssue(), createDummyIssue()},
+		}
+
+		reflect.ValueOf(responseBody).Elem().Set(reflect.ValueOf(&p).Elem())
+
+		return http.StatusOK, nil
+	}
+	defer func() { client.SendRequest = initialSendRequest }()
+
+	actualEvent := searchIssuesHandler([]byte(`{"query": "project = FLYTE"}`))
+	expectedEvent := newSearchSuccessEvent(SearchIssuesInput{"project = FLYTE", 0, 10}, 2, []domain.Issue{createDummyIssue(), createDummyIssue()})
+
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}

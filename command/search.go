@@ -2,6 +2,7 @@ package command
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"github.com/HotelsDotCom/flyte-jira/client"
@@ -29,28 +30,26 @@ func searchIssuesHandler(rawInput json.RawMessage) flyte.Event {
 	}
 
 	if input.Query == "" {
-		err := fmt.Errorf("Empty query string")
-		return newSearchFailureEvent(input.Query, input.StartIndex, input.MaxResults, err.Error())
+		err := errors.New("Empty query string")
+		return newSearchFailureEvent(input, err)
 	}
 
 	searchResult, err := client.SearchIssues(input.Query, input.StartIndex, input.MaxResults)
 	if err != nil {
-		err := fmt.Errorf("Could not search for issues: %v", err)
+		err := errors.New(fmt.Sprintf("Could not search for issues: %s", err))
 		log.Println(err)
-		return newSearchFailureEvent(input.Query, input.StartIndex, input.MaxResults, err.Error())
+		return newSearchFailureEvent(input, err)
 	}
 
 	return newSearchSuccessEvent(
-		input.Query,
-		input.StartIndex,
-		input.MaxResults,
+		input,
 		searchResult.TotalResults,
 		searchResult.Issues)
 }
 
-func newSearchSuccessEvent(query string, startIndex int, maxResults int, totalResults int, unformattedIssues []domain.Issue) flyte.Event {
+func newSearchSuccessEvent(input SearchIssuesInput, totalResults int, unformattedIssues []domain.Issue) flyte.Event {
 
-	inputDetails := SearchIssuesInput{query, startIndex, maxResults}
+	inputDetails := SearchIssuesInput{input.Query, input.StartIndex, input.MaxResults}
 	var issues []IssuePayload
 	for _, issue := range unformattedIssues {
 		formattedIssue := IssuePayload{
@@ -68,12 +67,12 @@ func newSearchSuccessEvent(query string, startIndex int, maxResults int, totalRe
 	}
 }
 
-func newSearchFailureEvent(query string, startIndex int, maxResults int, error string) flyte.Event {
+func newSearchFailureEvent(input SearchIssuesInput, error error) flyte.Event {
 
-	inputDetails := SearchIssuesInput{query, startIndex, maxResults}
+	inputDetails := SearchIssuesInput{input.Query, input.StartIndex, input.MaxResults}
 	return flyte.Event{
 		EventDef: searchFailureEventDef,
-		Payload:  SearchFailureOutput{inputDetails, error},
+		Payload:  SearchFailureOutput{inputDetails, error.Error()},
 	}
 }
 
