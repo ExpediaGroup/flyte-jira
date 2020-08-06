@@ -18,6 +18,7 @@ package command
 
 import (
 	"errors"
+	"github.com/HotelsDotCom/flyte-client/flyte"
 	"github.com/HotelsDotCom/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-jira/domain"
 	"net/http"
@@ -96,6 +97,15 @@ func TestIssueFormatting(t *testing.T) {
 
 	actualEvent := searchIssuesHandler([]byte(`{"query": "project = FLYTE"}`))
 	expectedEvent := newSearchSuccessEvent(SearchIssuesInput{"project = FLYTE", 0, 10}, 2, []domain.Issue{createDummyIssue(), createDummyIssue()})
+
+	if !reflect.DeepEqual(actualEvent, expectedEvent) {
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+	}
+}
+
+func TestInvalidInput(t *testing.T){
+	actualEvent := searchIssuesHandler([]byte(`{]`))
+	expectedEvent := flyte.NewFatalEvent(errors.New("input is not valid: invalid character ']' looking for beginning of object key string"))
 
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)

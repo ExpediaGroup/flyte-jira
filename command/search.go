@@ -36,7 +36,7 @@ func searchIssuesHandler(rawInput json.RawMessage) flyte.Event {
 
 	searchResult, err := client.SearchIssues(input.Query, input.StartIndex, input.MaxResults)
 	if err != nil {
-		err := errors.New(fmt.Sprintf("Could not search for issues: %s", err))
+		err := fmt.Errorf("Could not search for issues: %s", err)
 		log.Println(err)
 		return newSearchFailureEvent(input, err)
 	}
