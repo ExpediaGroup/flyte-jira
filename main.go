@@ -17,13 +17,13 @@ limitations under the License.
 package main
 
 import (
-	"log"
-	"net/url"
-	"os"
 	"github.com/HotelsDotCom/flyte-client/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	jira "github.com/HotelsDotCom/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-jira/command"
+	"log"
+	"net/url"
+	"os"
 	"time"
 )
 
@@ -35,7 +35,7 @@ func main() {
 	packDef := flyte.PackDef{
 		Name:     "Jira",
 		HelpURL:  getUrl("https://github.com/HotelsDotCom/flyte-jira/blob/master/README.md"),
-		Commands: []flyte.Command{command.IssueInfoCommand, command.CreateIssueCommand, command.IssueCommentCommand},
+		Commands: []flyte.Command{command.IssueInfoCommand, command.CreateIssueCommand, command.IssueCommentCommand, command.SearchIssuesCommand},
 	}
 
 	p := flyte.NewPack(packDef, client.NewClient(hostUrl, 10*time.Second))

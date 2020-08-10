@@ -120,3 +120,47 @@ the error:
     "error": "Could not comment on issue: status code 400"
 }
 ```
+
+### SearchIssues command
+This command searches issues using [JQL queries](https://confluence.atlassian.com/jirasoftwareserver/advanced-searching-939938733.html).
+#### Input
+This command's inputs are the query string, the index of the first element to be retrieved in the list of results and the number of elements to be retrieved.
+```
+"input": {
+    "query": "project = Flyte", // required
+    "startIndex": 0,            // optional, default: 0
+    "maxResults": 10            // optional, default: 10
+}
+```
+#### Output
+This command can return either a `SearchSuccess` event or a `SearchFailure` event. 
+##### SearchSuccess event
+This is the success event, it contains the values given as input for the command, the total number of possible results and the issues retrieved.
+```
+"payload": {
+    "query": "project = Flyte",
+    "startIndex": 0,
+    "maxResults": 10,
+    "total": 85,
+    "issues":[
+        {
+            "id": "TEST-123",
+            "summary": "Fix client race condition",
+            "status": "In Progress",
+            "description": "The client experiences.....",
+            "assignee": "jsmith",
+        }
+        ... 
+    ]
+}
+```
+##### SearchFailure event
+This returns the error if the jql query is not valid. It contains the values given as input for the command and the error:
+```
+"payload": {
+    "query": "project = Flyte",
+    "startIndex": 0,
+    "maxResults": 10,
+    "error": "Could not search for issues: statusCode=400"
+}
+```

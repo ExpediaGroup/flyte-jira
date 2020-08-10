@@ -18,12 +18,11 @@ package command
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
-	"log"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"github.com/HotelsDotCom/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-jira/domain"
+	"log"
 )
 
 var IssueInfoCommand = flyte.Command{
@@ -37,14 +36,14 @@ func infoHandler(input json.RawMessage) flyte.Event {
 	issue := domain.Issue{}
 
 	if err := json.Unmarshal(input, &id); err != nil {
-		err := errors.New(fmt.Sprintf("Could not marshal issue id: %s", err))
+		err := fmt.Errorf("Could not marshal issue id: %s", err)
 		log.Println(err)
 		return newInfoFailureEvent(err.Error(), "unkown")
 	}
 
 	issue, err := client.GetIssueInfo(id)
 	if err != nil {
-		err := errors.New(fmt.Sprintf("Could not get info: %v", err))
+		err := fmt.Errorf("Could not get info: %v", err)
 		log.Println(err)
 		return newInfoFailureEvent(err.Error(), id)
 	}

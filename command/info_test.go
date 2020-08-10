@@ -17,10 +17,10 @@ limitations under the License.
 package command
 
 import (
-	"net/http"
-	"reflect"
 	"github.com/HotelsDotCom/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-jira/domain"
+	"net/http"
+	"reflect"
 	"testing"
 )
 

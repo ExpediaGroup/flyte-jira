@@ -18,6 +18,7 @@ package command
 
 import (
 	"encoding/json"
+	"github.com/HotelsDotCom/flyte-jira/domain"
 	"testing"
 )
 
@@ -27,4 +28,8 @@ func toJson(i interface{}, t *testing.T) []byte {
 		t.Errorf("error marshalling: %v", err)
 	}
 	return b
+}
+
+func createDummyIssue() domain.Issue {
+	return domain.Issue{}
 }
