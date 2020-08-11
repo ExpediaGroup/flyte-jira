@@ -19,8 +19,8 @@ package command
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	"github.com/HotelsDotCom/flyte-jira/client"
 	"log"
 )
 

@@ -1,4 +1,4 @@
-module github.com/HotelsDotCom/flyte-jira
+module github.com/ExpediaGroup/flyte-jira
 
 go 1.14
 

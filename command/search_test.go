@@ -18,9 +18,9 @@ package command
 
 import (
 	"errors"
+	"github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/ExpediaGroup/flyte-jira/domain"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	"github.com/HotelsDotCom/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-jira/domain"
 	"net/http"
 	"reflect"
 	"testing"
@@ -103,7 +103,7 @@ func TestIssueFormatting(t *testing.T) {
 	}
 }
 
-func TestInvalidInput(t *testing.T){
+func TestInvalidInput(t *testing.T) {
 	actualEvent := searchIssuesHandler([]byte(`{]`))
 	expectedEvent := flyte.NewFatalEvent(errors.New("input is not valid: invalid character ']' looking for beginning of object key string"))
 

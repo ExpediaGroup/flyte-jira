@@ -18,7 +18,7 @@ package command
 
 import (
 	"encoding/json"
-	"github.com/HotelsDotCom/flyte-jira/domain"
+	"github.com/ExpediaGroup/flyte-jira/domain"
 	"testing"
 )
 
