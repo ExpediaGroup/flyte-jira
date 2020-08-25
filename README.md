@@ -1,6 +1,6 @@
 ## Overview
 
-![Build Status](https://travis-ci.org/HotelsDotCom/flyte-jira.svg?branch=master)
+![Build Status](https://travis-ci.org/ExpediaGroup/flyte-jira.svg?branch=master)
 [![Docker Stars](https://img.shields.io/docker/stars/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
 [![Docker Pulls](https://img.shields.io/docker/pulls/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
 

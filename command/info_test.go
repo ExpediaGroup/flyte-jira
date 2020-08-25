@@ -17,8 +17,8 @@ limitations under the License.
 package command
 
 import (
-	"github.com/HotelsDotCom/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-jira/domain"
+	"github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/ExpediaGroup/flyte-jira/domain"
 	"net/http"
 	"reflect"
 	"testing"

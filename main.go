@@ -17,10 +17,10 @@ limitations under the License.
 package main
 
 import (
+	jira "github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/ExpediaGroup/flyte-jira/command"
 	"github.com/HotelsDotCom/flyte-client/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	jira "github.com/HotelsDotCom/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-jira/command"
 	"log"
 	"net/url"
 	"os"
@@ -34,7 +34,7 @@ func main() {
 
 	packDef := flyte.PackDef{
 		Name:     "Jira",
-		HelpURL:  getUrl("https://github.com/HotelsDotCom/flyte-jira/blob/master/README.md"),
+		HelpURL:  getUrl("https://github.com/ExpediaGroup/flyte-jira/blob/master/README.md"),
 		Commands: []flyte.Command{command.IssueInfoCommand, command.CreateIssueCommand, command.IssueCommentCommand, command.SearchIssuesCommand},
 	}
 

@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/ExpediaGroup/flyte-jira/domain"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	"github.com/HotelsDotCom/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-jira/domain"
 	"log"
 )
 
