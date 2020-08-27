@@ -14,7 +14,7 @@ To build and run from the command line:
 * Clone this repo
 * Run `go build`
 * Run `FLYTE_API_URL=http://.../ JIRA_HOST=https://... JIRA_USER=... JIRA_PASSWORD=... ./flyte-jira`
-* Fill in this command with the relevant API url, jira host, jira user and jira password environment variables
+* Fill in this command with the relevant API url, Jira host, Jira user and Jira password environment variables
 
 ### Docker
 To build and run from docker
@@ -54,7 +54,7 @@ This contains the id of the issue and the error.
 ```
 
 ### CreateIssue command
-This command creates a jira issue.
+This command creates a Jira issue.
 #### Input
 This commands input is the project the issue should be created under, the issue type and the title.
 ```
