@@ -164,3 +164,38 @@ This returns the error if the jql query is not valid. It contains the values giv
     "error": "Could not search for issues: statusCode=400"
 }
 ```
+
+[issue-assign]: https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/issue-assign
+### IssueAssign command
+Assign a user to a JIRA issue
+
+### Input
+The input is a `json` object with a `username` and an `issueId` fields. According to the Jira [API docs][issue-assign], the username field can be left empty to unassign the issue, which is why it can be omitted from the input. Likewise, a "-1" string name will `auto-assign` the issue.
+`input JSON object`:
+```json
+{
+  "username": "test-123", // optional, nil name == unassign
+  "issueId": "ISSUE-01" // required
+}
+```
+#### Output
+The output consists of two events: an `AssignEvent` or an `AssignFailureEvent`
+
+#### AssignEvent
+If the assignment is successful, an event will be propagated back with a payload consisting of the initial request paramters.
+```json
+"payload": {
+  "username":"test-123",
+  "issueId": "ISSUE-01"
+}
+```
+
+#### AssignFailureEvent
+If the assignment is unsuccessful, an `assignFailureEvent` will come back with a payload consisting of the initial request and the error message.
+```json
+"payload": {
+  "username": "foo",
+  "issueId": "ISSUE01",
+  "error": "Unauthorised"
+}
+```

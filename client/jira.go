@@ -19,6 +19,7 @@ package client
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
 	"net/http"
@@ -28,47 +29,53 @@ import (
 // Must be initialised before using
 var JiraConfig Config
 
-type Config struct {
-	Host     string
-	Username string
-	Password string
-}
+type (
+	Config struct {
+		Host     string
+		Username string
+		Password string
+	}
 
-type Comment struct {
-	Body string `json:"body"`
-}
+	Comment struct {
+		Body string `json:"body"`
+	}
 
-type IssueRequest struct {
-	Fields RequestFields `json:"fields"`
-}
+	IssueRequest struct {
+		Fields RequestFields `json:"fields"`
+	}
 
-type RequestFields struct {
-	Project   ProjectRequest   `json:"project"`
-	Summary   string           `json:"summary"`
-	IssueType IssueTypeRequest `json:"issuetype"`
-}
+	RequestFields struct {
+		Project   ProjectRequest   `json:"project"`
+		Summary   string           `json:"summary"`
+		IssueType IssueTypeRequest `json:"issuetype"`
+	}
 
-type ProjectRequest struct {
-	Key string `json:"key"`
-}
+	ProjectRequest struct {
+		Key string `json:"key"`
+	}
 
-type IssueTypeRequest struct {
-	Name string `json:"name"`
-}
+	IssueTypeRequest struct {
+		Name string `json:"name"`
+	}
 
-type SearchRequestType struct {
-	Query      string   `json:"jql"`
-	StartIndex int      `json:"startAt"`
-	MaxResults int      `json:"maxResults"`
-	Fields     []string `json:"fields"`
-}
+	SearchRequestType struct {
+		Query      string   `json:"jql"`
+		StartIndex int      `json:"startAt"`
+		MaxResults int      `json:"maxResults"`
+		Fields     []string `json:"fields"`
+	}
 
-type SearchResult struct {
-	StartIndex   int            `json:"startAt"`
-	MaxResults   int            `json:"maxResults"`
-	TotalResults int            `json:"total"`
-	Issues       []domain.Issue `json:"issues"'`
-}
+	SearchResult struct {
+		StartIndex   int            `json:"startAt"`
+		MaxResults   int            `json:"maxResults"`
+		TotalResults int            `json:"total"`
+		Issues       []domain.Issue `json:"issues"'`
+	}
+
+	AssignRequest struct {
+		Name string `json:"name,omitempty"`
+	}
+)
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue
@@ -171,6 +178,39 @@ func SearchIssues(query string, startIndex int, maxResults int) (SearchResult, e
 	return searchResult, nil
 }
 
+func AssignIssue(issueId, username string) error {
+	path := fmt.Sprintf("/rest/api/2/issue/%s/assignee", issueId)
+	b, err := json.Marshal(&AssignRequest{username})
+	if err != nil {
+		return err
+	}
+
+	req, err := constructPutRequest(path, string(b))
+	if err != nil {
+		return err
+	}
+
+	httpCode, err := SendRequestWithoutResp(req)
+	if err != nil {
+		return err
+	}
+
+	switch httpCode {
+	case http.StatusNoContent:
+		err = nil
+	case http.StatusBadRequest:
+		err = errors.New("invalid user representation")
+	case http.StatusUnauthorized:
+		err = errors.New("invalid permission to assign to issue")
+	case http.StatusNotFound:
+		err = errors.New("issue or user does not exist")
+	default:
+		err = fmt.Errorf("unsupported status code %d", httpCode)
+	}
+
+	return err
+}
+
 func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 	project := ProjectRequest{projectKey}
 	issue := IssueTypeRequest{issueType}
@@ -215,6 +255,23 @@ func constructPostRequest(path, data string) (*http.Request, error) {
 		request.SetBasicAuth(JiraConfig.Username, JiraConfig.Password)
 	}
 	return request, err
+}
+
+func constructPutRequest(path, data string) (*http.Request, error) {
+	request, err := http.NewRequest(http.MethodPut, getUrl(path), bytes.NewBuffer([]byte(data)))
+	if err != nil {
+		return request, err
+	}
+
+	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Accept", "application/json")
+
+	if JiraConfig.Username != "" {
+		request.SetBasicAuth(JiraConfig.Username, JiraConfig.Password)
+	}
+
+	return request, err
+
 }
 
 func getUrl(path string) string {
