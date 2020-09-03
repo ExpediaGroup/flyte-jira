@@ -27,7 +27,7 @@ This pack provides three commands: `CommentIssue`, `IssueInfo` and `CreateIssue`
 ### issueInfo command
 This command returns information about a specific issue.
 #### Input
-This commands input is the id of the desired issue. The issue can either be a URL with an issueId base or an issueId in string representation.
+This command's input is the id of the desired issue. The issue can either be a URL with an issueId base or an issueId in string representation.
 E.g
 ```
 "input": "TEST-123",
@@ -35,7 +35,7 @@ E.g
 ```
 
 Because slack automatically places embeded URLs in between `< >` tags, then the following is also accepted:
-`"input": "<http://foo.bar/TEST-123>" 
+`"input": "<http://foo.bar/TEST-123>"`
 #### Output
 This command can either return an `Info` event or an `InfoFailure` event.
 ##### Info event
