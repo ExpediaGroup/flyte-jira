@@ -24,17 +24,32 @@ import (
 	"testing"
 )
 
+type infoTest struct {
+	name string
+	rawJson string
+}
+
 func TestGetInfoWorkingAsExpected(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusOK, nil
 	}
-	input := toJson("Test", t)
-	actualEvent := infoHandler(input)
 
-	// Issue empty because it's populated in Send request
-	expectedEvent := newInfoEvent(domain.Issue{})
-	if !reflect.DeepEqual(actualEvent, expectedEvent) {
-		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
+	testCases := []infoTest {
+		{"test-normal-input", `"Test"`},
+		{"test-url-input", `"http://test123.com/Test"`},
+		{"test-slack-url-input", `"<http://test123.com/Test>"`},
+	}
+
+	for _, tCase := range testCases {
+		t.Run(tCase.name, func(t *testing.T) {
+			in := tCase.rawJson
+			event := infoHandler([]byte(in))
+
+			expectedEvent := newInfoEvent(domain.Issue{})
+			if !reflect.DeepEqual(event, expectedEvent) {
+				t.Errorf("Expected: %v but got: %v", expectedEvent, event)
+			}
+		})
 	}
 }
 
@@ -46,7 +61,7 @@ func TestGetInfoFailure(t *testing.T) {
 	actualEvent := infoHandler(input)
 
 	// Issue empty because it's populated in Send request
-	expectedEvent := newInfoFailureEvent("Could not get info: issueId=Test : statusCode=400", "Test")
+	expectedEvent := newInfoFailureEvent("could not get info: issueId=Test : statusCode=400", "Test")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %v but got: %v", expectedEvent, actualEvent)
 	}
