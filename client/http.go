@@ -23,6 +23,7 @@ import (
 )
 
 var SendRequest = sendRequest
+var SendRequestWithoutResp = sendRequestWithoutResp
 
 func sendRequest(request *http.Request, responseBody interface{}) (responseCode int, err error) {
 	tr := &http.Transport{
@@ -36,5 +37,20 @@ func sendRequest(request *http.Request, responseBody interface{}) (responseCode 
 	}
 
 	defer response.Body.Close()
+
 	return response.StatusCode, json.NewDecoder(response.Body).Decode(&responseBody)
+}
+
+func sendRequestWithoutResp(request *http.Request) (responseCode int, err error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{Transport: tr}
+	resp, err := client.Do(request)
+	if err != nil {
+		return -1, err
+	}
+	defer resp.Body.Close()
+	return resp.StatusCode, nil
 }
