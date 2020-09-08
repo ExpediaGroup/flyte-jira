@@ -117,12 +117,11 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 		return domain.Issue{}, fmt.Errorf("issueId=%s : statusCode=%d", issueId, statusCode)
 	}
 	if err != nil {
-		return domain.Issue{}, err
+		return domain.Issue{}, fmt.Errorf("issueId=%s : err=%s", issueId, err)
 	}
 
 	return issue, nil
 }
-
 
 func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 	var issue domain.Issue
