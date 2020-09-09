@@ -18,50 +18,68 @@ package command
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-jira/domain"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"log"
+	"regexp"
 )
 
-var IssueInfoCommand = flyte.Command{
-	Name:         "IssueInfo",
-	OutputEvents: []flyte.EventDef{infoEventDef, infoFailureEventDef},
-	Handler:      infoHandler,
-}
+var (
+	IssueInfoCommand = flyte.Command{
+		Name:         "IssueInfo",
+		OutputEvents: []flyte.EventDef{infoEventDef, infoFailureEventDef},
+		Handler:      infoHandler,
+	}
+
+	infoEventDef = flyte.EventDef{
+		Name: "Info",
+	}
+
+	infoFailureEventDef = flyte.EventDef{
+		Name: "InfoFailure",
+	}
+)
+
+type (
+	infoSuccessPayload struct {
+		Id          string `json:"id"`
+		Summary     string `json:"summary"`
+		Status      string `json:"status"`
+		Description string `json:"description"`
+		Assignee    string `json:"assignee"`
+	}
+
+	infoFailurePayload struct {
+		Id    string `json:"id"`
+		Error string `json:"error"`
+	}
+)
 
 func infoHandler(input json.RawMessage) flyte.Event {
-	var id string
-	issue := domain.Issue{}
-
-	if err := json.Unmarshal(input, &id); err != nil {
-		err := fmt.Errorf("Could not marshal issue id: %s", err)
-		log.Println(err)
-		return newInfoFailureEvent(err.Error(), "unkown")
+	var in string
+	if err := json.Unmarshal(input, &in); err != nil {
+		log.Printf("Error unmarshaling input for IssueInfo: %s", err)
+		return newInfoFailureEvent("", err)
 	}
 
-	issue, err := client.GetIssueInfo(id)
+	//`\w+-\d+ should resolve any regex of type <KEY-NUMBER>
+	re := regexp.MustCompile(`\w+-\d+`)
+	issueId := re.FindString(in)
+
+	issue, err := client.GetIssueInfo(issueId)
 	if err != nil {
-		err := fmt.Errorf("Could not get info: %v", err)
-		log.Println(err)
-		return newInfoFailureEvent(err.Error(), id)
+		log.Printf("Error fetching IssueInfo for %s: %s", issueId, err)
+		return newInfoFailureEvent(issueId, err)
 	}
+
 	return newInfoEvent(issue)
 }
 
-var infoEventDef = flyte.EventDef{
-	Name: "Info",
-}
-
-var infoFailureEventDef = flyte.EventDef{
-	Name: "InfoFailure",
-}
-
-func newInfoFailureEvent(err, id string) flyte.Event {
+func newInfoFailureEvent(issueId string, err error) flyte.Event {
 	return flyte.Event{
 		EventDef: infoFailureEventDef,
-		Payload:  infoFailurePayload{id, err},
+		Payload:  infoFailurePayload{issueId, err.Error()},
 	}
 }
 
@@ -76,17 +94,4 @@ func newInfoEvent(t domain.Issue) flyte.Event {
 			Assignee:    t.Fields.Assignee.Name,
 		},
 	}
-}
-
-type infoSuccessPayload struct {
-	Id          string `json:"id"`
-	Summary     string `json:"summary"`
-	Status      string `json:"status"`
-	Description string `json:"description"`
-	Assignee    string `json:"assignee"`
-}
-
-type infoFailurePayload struct {
-	Id    string `json:"id"`
-	Error string `json:"error"`
 }

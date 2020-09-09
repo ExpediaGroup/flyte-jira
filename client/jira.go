@@ -114,12 +114,10 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 
 	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusOK {
-		err = fmt.Errorf("issueId=%s : statusCode=%d", issueId, statusCode)
-		return domain.Issue{}, err
+		return domain.Issue{}, fmt.Errorf("issueId=%s : statusCode=%d", issueId, statusCode)
 	}
 	if err != nil {
-		err = fmt.Errorf("issueId=%s : err=%v", issueId, err)
-		return domain.Issue{}, err
+		return domain.Issue{}, fmt.Errorf("issueId=%s : err=%s", issueId, err)
 	}
 
 	return issue, nil
