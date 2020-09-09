@@ -34,7 +34,7 @@ type infoTest struct {
 
 func TestGetInfoWorkingAsExpected(t *testing.T) {
 	initialFunc := client.SendRequest
-	defer func(){ client.SendRequest = initialFunc}()
+	defer func() { client.SendRequest = initialFunc }()
 	expectedIssueId := ""
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		reqPath := request.URL.Path
@@ -90,7 +90,7 @@ func TestGetInfoWorkingAsExpected(t *testing.T) {
 
 func TestGetInfoFailure(t *testing.T) {
 	initialFunc := client.SendRequest
-	defer func(){ client.SendRequest = initialFunc}()
+	defer func() { client.SendRequest = initialFunc }()
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusBadRequest, nil
 	}
