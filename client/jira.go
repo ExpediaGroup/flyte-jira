@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -75,7 +76,28 @@ type (
 	AssignRequest struct {
 		Name string `json:"name,omitempty"`
 	}
+
+	StatusesResult struct {
+		Statuses []Status `json: "statuses"`
+	}
+
+	Status struct {
+		Name string `json: "name"`
+	}
 )
+
+func GetStatuses(projectId string) error {
+
+	path := fmt.Sprintf("/rest/api/2/project/%s/statuses", projectId)
+	request, err := constructGetRequest(path)
+	if err != nil {
+		return err
+	}
+	var results StatusesResult
+	statusCode, err := SendRequest(request, &results)
+	log.Printf("The results are %v and the status code is %d", results, statusCode)
+	return nil
+}
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue
