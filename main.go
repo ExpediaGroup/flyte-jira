@@ -41,6 +41,9 @@ func main() {
 			command.IssueCommentCommand,
 			command.SearchIssuesCommand,
 			command.IssueAssignCommand,
+			command.IssueCreateLinkCommand,
+			command.IssueGetLinkCommand,
+			command.IssueDeleteLinkCommand,
 		},
 	}
 

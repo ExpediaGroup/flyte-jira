@@ -73,6 +73,7 @@ func infoHandler(input json.RawMessage) flyte.Event {
 		return newInfoFailureEvent(issueId, err)
 	}
 
+	log.Printf("Issue links %v", issue.Fields.Links)
 	return newInfoEvent(issue)
 }
 
