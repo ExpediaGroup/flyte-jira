@@ -3,25 +3,24 @@ package command
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/ExpediaGroup/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-client/flyte"
 	"io/ioutil"
 	"net/http"
 	"path"
 	"reflect"
 	"testing"
+
+	"github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/HotelsDotCom/flyte-client/flyte"
 )
 
 func TestLinkCreateIsSuccessful(t *testing.T) {
 	initialFunc := client.SendRequestWithoutResp
 	defer func() { client.SendRequestWithoutResp = initialFunc }()
-	in := []byte(`
-    {
-	"inwardIssue": "TEST-123",
-    "outwardIssue": "Test-321",
-    "linkType": "Depends"
-    }
-	`)
+	in := []byte(`{
+        "inwardIssue": "TEST-123",
+        "outwardIssue": "Test-321",
+        "linkType": "Depends"
+        }`)
 
 	expHttpReq := client.LinkIssueRequest{
 		LinkType: client.IssueLink{Name: "Depends"},
