@@ -81,7 +81,8 @@ type (
 	}
 
 	Transition struct {
-		Name string `json:"name"`
+		TransitionId   string `json:"id"`
+		TransitionName string `json:"name"`
 	}
 )
 
@@ -93,6 +94,7 @@ func GetTransitions(issueId string) (TransitionsResult, error) {
 		return results, err
 	}
 	statusCode, err := SendRequest(request, &results)
+
 	if statusCode != http.StatusOK {
 		return results, err
 	}
