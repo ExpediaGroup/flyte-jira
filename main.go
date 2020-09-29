@@ -41,6 +41,7 @@ func main() {
 			command.IssueCommentCommand,
 			command.SearchIssuesCommand,
 			command.IssueAssignCommand,
+			command.DoTransition,
 		},
 	}
 

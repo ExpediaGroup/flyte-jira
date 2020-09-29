@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -72,6 +73,16 @@ type (
 		Issues       []domain.Issue `json:"issues"'`
 	}
 
+
+
+	TransitionIdRequest struct {
+		TransitionId string `json:"id"`
+	}
+
+	DoTransitionRequest struct {
+		Transition TransitionIdRequest `json:"transition"`
+	}
+
 	AssignRequest struct {
 		Name string `json:"name,omitempty"`
 	}
@@ -101,6 +112,41 @@ func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	}
 
 	return issue, nil
+}
+
+func DoTransition(issueId, transitionId string) error {
+	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
+	doTransitionRequest := prepare(transitionId)
+	b, err := json.Marshal(doTransitionRequest)
+	request, err := constructPostRequest(path, string(b))
+
+	log.Println(request)
+	log.Println(string(b))
+
+	log.Printf("issueID %s - URL %s - transitionID %s", issueId, request.URL, transitionId)
+	if err != nil {
+		return err
+	}
+
+	responseCode, err := SendRequestWithoutResp(request)
+	if err != nil {
+		return err
+	}
+
+	switch responseCode {
+	case http.StatusNoContent:
+		err = nil
+	case http.StatusBadRequest:
+		err = errors.New("no transition specified")
+	case http.StatusUnauthorized:
+		err = errors.New("invalid permission to transition an issue")
+	case http.StatusNotFound:
+		err = errors.New("issue or user does not exist")
+	default:
+		err = fmt.Errorf("unsupported status code %d", responseCode)
+	}
+
+	return err
 }
 
 func GetIssueInfo(issueId string) (domain.Issue, error) {
@@ -215,6 +261,11 @@ func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 
 	fields := RequestFields{Project: project, Summary: summary, IssueType: issue}
 	return IssueRequest{Fields: fields}
+}
+
+func prepare(transitionId string) DoTransitionRequest {
+	transition := TransitionIdRequest{TransitionId: transitionId}
+	return DoTransitionRequest{Transition: transition}
 }
 
 func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRequestType {
