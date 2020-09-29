@@ -77,26 +77,25 @@ type (
 		Name string `json:"name,omitempty"`
 	}
 
-	StatusesResult struct {
-		Statuses []Status `json: "statuses"`
+	TransitionsResult struct {
+		Transitions []Transition `json:"transitions"`
 	}
 
-	Status struct {
-		Name string `json: "name"`
+	Transition struct {
+		Name string `json:"name"`
 	}
 )
 
-func GetStatuses(projectId string) error {
-
-	path := fmt.Sprintf("/rest/api/2/project/%s/statuses", projectId)
+func GetTransitions(issueId string) (TransitionsResult, error) {
+	var results TransitionsResult
+	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
 	request, err := constructGetRequest(path)
 	if err != nil {
-		return err
+		return results, err
 	}
-	var results StatusesResult
 	statusCode, err := SendRequest(request, &results)
-	log.Printf("The results are %v and the status code is %d", results, statusCode)
-	return nil
+	log.Printf("The results (tranisions) are %v and the status code is %d", results, statusCode)
+	return results, nil
 }
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
