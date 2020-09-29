@@ -19,7 +19,6 @@ package client
 import (
 	"crypto/tls"
 	"encoding/json"
-	"log"
 	"net/http"
 )
 
@@ -38,8 +37,6 @@ func sendRequest(request *http.Request, responseBody interface{}) (responseCode 
 	}
 
 	defer response.Body.Close()
-
-	log.Printf("the response body %v", response.Body)
 
 	return response.StatusCode, json.NewDecoder(response.Body).Decode(&responseBody)
 }
