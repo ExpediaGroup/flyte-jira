@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -94,7 +93,9 @@ func GetTransitions(issueId string) (TransitionsResult, error) {
 		return results, err
 	}
 	statusCode, err := SendRequest(request, &results)
-	log.Printf("The results (tranisions) are %v and the status code is %d", results, statusCode)
+	if statusCode != http.StatusOK {
+		return results, err
+	}
 	return results, nil
 }
 

@@ -29,8 +29,8 @@ type (
 	}
 
 	transitionsSuccessPayload struct {
-		Id          string `json:"id"`
-		results		[]client.Transition `json:"transitions"`
+		Id      string              `json:"id"`
+		results []client.Transition `json:"transitions"`
 	}
 
 	transitionsFailurePayload struct {
@@ -55,9 +55,9 @@ func getTransitionsHandler(input json.RawMessage) flyte.Event {
 
 	return flyte.Event{
 		EventDef: getTransitionsEventDef,
-		Payload:  transitionsSuccessPayload{
-			Id:req.IssueId,
-			results:results.Transitions,
+		Payload: transitionsSuccessPayload{
+			Id:      req.IssueId,
+			results: results.Transitions,
 		},
 	}
 }
