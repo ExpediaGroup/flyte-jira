@@ -179,6 +179,7 @@ func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 
 	path := "/rest/api/2/issue/"
 	request, err := constructPostRequest(path, string(b))
+	log.Printf("responseeee %v", request.Response)
 	if err != nil {
 		return issue, err
 	}
