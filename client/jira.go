@@ -22,7 +22,6 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
-	"log"
 	"net/http"
 	"strings"
 )
@@ -73,8 +72,6 @@ type (
 		Issues       []domain.Issue `json:"issues"'`
 	}
 
-
-
 	TransitionIdRequest struct {
 		TransitionId string `json:"id"`
 	}
@@ -120,10 +117,6 @@ func DoTransition(issueId, transitionId string) error {
 	b, err := json.Marshal(doTransitionRequest)
 	request, err := constructPostRequest(path, string(b))
 
-	log.Println(request)
-	log.Println(string(b))
-
-	log.Printf("issueID %s - URL %s - transitionID %s", issueId, request.URL, transitionId)
 	if err != nil {
 		return err
 	}

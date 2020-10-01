@@ -39,14 +39,14 @@ type (
 func doTransitionHandler(input json.RawMessage) flyte.Event {
 	req := doTransitionRequest{}
 	if err := json.Unmarshal(input, &req); err != nil {
-		log.Printf("Error unmarshaling doing transition request [%s]: %s", input, err)
+		log.Printf("Error unmarshaling transition request [%s]: %s", input, err)
 		return doTransitionFailureEvent(req, err)
 	}
 
 	err := client.DoTransition(req.IssueId, req.TransitionId)
 
 	if err != nil {
-		log.Printf("Error during doing a transition for issue %s: %s", req.IssueId, err)
+		log.Printf("Error during a transition for issue %s: %s", req.IssueId, err)
 		return doTransitionFailureEvent(req, err)
 	}
 
