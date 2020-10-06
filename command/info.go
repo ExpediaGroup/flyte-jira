@@ -18,11 +18,12 @@ package command
 
 import (
 	"encoding/json"
+	"log"
+	"regexp"
+
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-jira/domain"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	"log"
-	"regexp"
 )
 
 var (
@@ -73,7 +74,6 @@ func infoHandler(input json.RawMessage) flyte.Event {
 		return newInfoFailureEvent(issueId, err)
 	}
 
-	log.Printf("Issue links %v", issue.Fields.Links)
 	return newInfoEvent(issue)
 }
 
