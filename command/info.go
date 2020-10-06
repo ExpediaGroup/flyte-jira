@@ -18,11 +18,12 @@ package command
 
 import (
 	"encoding/json"
+	"log"
+	"regexp"
+
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-jira/domain"
 	"github.com/HotelsDotCom/flyte-client/flyte"
-	"log"
-	"regexp"
 )
 
 var (
