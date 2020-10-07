@@ -76,30 +76,23 @@ type (
 		Name string `json:"name,omitempty"`
 	}
 
-	TransitionsResult struct {
-		Transitions []Transition `json:"transitions"`
+	LinkIssueRequest struct {
+		LinkType IssueLink `json:"type"`
+		Inward   LinkIssue `json:"inwardIssue"`
+		Outward  LinkIssue `json:"outwardIssue"`
+		Comment  `json:"comment"`
 	}
 
-	Transition struct {
-		TransitionId   string `json:"id"`
-		TransitionName string `json:"name"`
+	LinkIssue struct {
+		Key string `json:"key"`
+	}
+
+	IssueLink struct {
+		Name    string `json:"name"`
+		Inward  string `json:"inward,omitempty"`
+		Outward string `json:"outward,omitempty"`
 	}
 )
-
-func GetTransitions(issueId string) (TransitionsResult, error) {
-	var results TransitionsResult
-	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
-	request, err := constructGetRequest(path)
-	if err != nil {
-		return results, err
-	}
-	statusCode, err := SendRequest(request, &results)
-
-	if statusCode != http.StatusOK {
-		return results, err
-	}
-	return results, nil
-}
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue
@@ -233,6 +226,80 @@ func AssignIssue(issueId, username string) error {
 	return err
 }
 
+func LinkIssues(inwardKey, outwardKey, linkType string) error {
+	path := "/rest/api/2/issueLink"
+	linkReq := LinkIssueRequest{
+		LinkType: IssueLink{Name: linkType},
+		Inward:   LinkIssue{inwardKey},
+		Outward:  LinkIssue{outwardKey},
+		Comment:  Comment{"Link related issues!"},
+	}
+	b, err := json.Marshal(linkReq)
+	if err != nil {
+		return err
+	}
+
+	httpReq, err := constructPostRequest(path, string(b))
+	if err != nil {
+		return err
+	}
+
+	httpCode, err := SendRequestWithoutResp(httpReq)
+	if err != nil {
+		return err
+	}
+
+	return checkHttpCode(httpCode, linkReq.Body)
+}
+
+func GetLink(linkId string) (*LinkIssueRequest, error) {
+	path := fmt.Sprintf("/rest/api/2/issueLink/%s", linkId)
+	httpReq, err := constructGetRequest(path)
+	if err != nil {
+		return nil, err
+	}
+
+	link := &LinkIssueRequest{}
+	httpCode, err := SendRequest(httpReq, &link)
+
+	return link, checkHttpCode(httpCode, linkId)
+}
+
+//TODO: get rid of all of those separate construct methods...
+func DeleteLink(linkId string) error {
+	path := fmt.Sprintf("/rest/api/2/issueLink/%s", linkId)
+	httpReq, err := constructDeleteRequest(path)
+	if err != nil {
+		return err
+	}
+
+	httpCode, err := SendRequestWithoutResp(httpReq)
+	return checkHttpCode(httpCode, linkId)
+}
+
+//TODO: change error msg to be more generic and use in other funcs
+func checkHttpCode(httpCode int, in string) error {
+	if 200 <= httpCode && httpCode <= 208 {
+		return nil
+	}
+
+	var err error
+	switch httpCode {
+	case http.StatusBadRequest:
+		err = fmt.Errorf("failed to create issue with comment %s", in)
+	case http.StatusUnauthorized:
+		err = errors.New("invalid permission to link issues")
+	case http.StatusInternalServerError:
+		err = errors.New("error occurred when creating link or comment")
+	case http.StatusNotFound:
+		err = errors.New("could not find issue or invalid link type specified")
+	default:
+		err = fmt.Errorf("unsupported status code %d found", httpCode)
+	}
+
+	return err
+}
+
 func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 	project := ProjectRequest{projectKey}
 	issue := IssueTypeRequest{issueType}
@@ -252,6 +319,20 @@ func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRe
 
 func constructGetRequest(path string) (*http.Request, error) {
 	request, err := http.NewRequest(http.MethodGet, getUrl(path), nil)
+	if err != nil {
+		return request, err
+	}
+
+	request.Header.Set("Accept", "application/json")
+	if JiraConfig.Username != "" {
+		request.SetBasicAuth(JiraConfig.Username, JiraConfig.Password)
+	}
+
+	return request, err
+}
+
+func constructDeleteRequest(path string) (*http.Request, error) {
+	request, err := http.NewRequest(http.MethodDelete, getUrl(path), nil)
 	if err != nil {
 		return request, err
 	}
@@ -285,7 +366,7 @@ func constructPutRequest(path, data string) (*http.Request, error) {
 		return request, err
 	}
 
-	request.Header.Set("Content-Type", "application/json")
+	request.Header.Set("Content-LinkType", "application/json")
 	request.Header.Set("Accept", "application/json")
 
 	if JiraConfig.Username != "" {

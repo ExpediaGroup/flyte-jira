@@ -23,7 +23,7 @@ To build and run from docker
 * All of these environment variables need to be set
 
 ## Commands
-This pack provides three commands: `CommentIssue`, `IssueInfo` and `CreateIssue`.
+This pack provides the following commands: `CommentIssue`, `IssueInfo`, `CreateIssue`, `IssueAssign`, `IssueCreateLink`, `IssueGetLink`, `IssueDeleteLink`
 ### issueInfo command
 This command returns information about a specific issue.
 #### Input
@@ -169,7 +169,7 @@ This returns the error if the jql query is not valid. It contains the values giv
     "error": "Could not search for issues: statusCode=400"
 }
 ```
-
+---
 [issue-assign]: https://docs.atlassian.com/software/jira/docs/api/REST/7.6.1/#api/2/issue-assign
 ### IssueAssign command
 Assign a user to a JIRA issue
@@ -204,3 +204,67 @@ If the assignment is unsuccessful, an `assignFailureEvent` will come back with a
   "error": "Unauthorised"
 }
 ```
+
+---
+### Links
+
+Jira offers the possibility to manage links between issues. The commands that are available to do so are `IssueGetLink`, `IssueDeleteLink` and `IssueCreateLink`. While their functionality is self-explanatory, the input/output varies depending on the operation.
+
+The two event types in the case of links are:
+1. `Link` --> propagated on success
+2. `LinkFailure` --> propagated on failure
+
+#### IssueGetLink
+
+will return a link object that links two issues. 
+
+#### Input:
+The input is a `json` object with a `linkId` field, where the `linkId` is id of the respective link object. Generally, those ids can be obtained by looking at a card information (`IssueInfo` now supports link information!).
+```json
+{
+ "linkId": "12351245"
+}
+```
+
+#### Output:
+In case of a success, the output will contain the link information:
+```json
+{
+ "inwardIssue": "<issue-key>",
+ "outwardIssue": "<issue-key>",
+ "linkType": {
+   "Name": "Depends"
+  },
+ "Comment": "Link related issues!" 
+}
+```
+
+#### IssueCreateLink
+Based on 2 project keys and and a link type, create a link with that type between the 2 issues.
+
+#### Input:
+```json
+{
+ "inwardIssue": "<issue-key>",
+  "outwardIssue": "<issue-key>",
+  "linkType": "<type>",
+}
+```
+
+#### Output:
+The output is the initial request or a failure event if unsuccessful.
+
+#### IssueDeleteLink
+Based on a `linkId`, the link between 2 issues is deleted.
+
+#### Input:
+```json
+{
+ "linkId": "12341234"
+}
+```
+
+#### Output:
+The initial request if successful or a failure event if unsuccessful.
+
+---

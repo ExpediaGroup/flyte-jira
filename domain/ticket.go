@@ -22,12 +22,13 @@ type Issue struct {
 }
 
 type Fields struct {
-	Summary     string   `json:"summary"`
-	Assignee    Assignee `json:"assignee"`
-	Labels      []string `json:"labels"`
-	Status      Status   `json:"status"`
-	Description string   `json:"description"`
-	Priority    Priority `json:"priority"`
+	Summary     string      `json:"summary"`
+	Assignee    Assignee    `json:"assignee"`
+	Labels      []string    `json:"labels"`
+	Status      Status      `json:"status"`
+	Description string      `json:"description"`
+	Priority    Priority    `json:"priority"`
+	Links       []IssueLink `json:"issuelinks"`
 }
 
 type Assignee struct {
@@ -45,6 +46,9 @@ type Labels struct {
 	Labels string `json:"labels"`
 }
 
+type IssueLink struct {
+	Id string `json:"id"`
+}
 type Priority struct {
 	Self    string `json:"self"`
 	IconURL string `json:"iconUrl"`
