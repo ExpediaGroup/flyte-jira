@@ -1,60 +1,98 @@
-/*
-Copyright (C) 2018 Expedia Group.
-
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
-
-http://www.apache.org/licenses/LICENSE-2.0
-
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
-*/
-
 package command
 
 import (
+	"encoding/json"
 	"github.com/ExpediaGroup/flyte-jira/client"
+	"github.com/HotelsDotCom/flyte-client/flyte"
+	"io/ioutil"
 	"net/http"
 	"reflect"
 	"testing"
 )
 
-func TestDoTransitionAsExpected(t *testing.T) {
-	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
-		return http.StatusNoContent, nil
+type (
+	mockRequestBody struct {
+		TransitionId string `json:"id"`
 	}
 
-	var inputStruct = struct {
-		IssueId      string `json:"issueId"`
-		TransitionId string `json:"transitionId"`
-	}{"DEVEX-123", "881"}
-	input := toJson(inputStruct, t)
+	DoTransitionRequest struct {
+		Transition mockRequestBody `json:"transition"`
+	}
+)
 
-	actualEvent := doTransitionHandler(input)
-	expectedEvent := doTransitionEvent(inputStruct)
-	if !reflect.DeepEqual(actualEvent, expectedEvent) {
-		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+func createMockSendRequest(issueId, transitionId string) func(request *http.Request) (int, error) {
+	return func(request *http.Request) (int, error) {
+		b, err := ioutil.ReadAll(request.Body)
+		if err != nil {
+			return 400, err
+		}
+
+		body := &DoTransitionRequest{}
+
+		if err := json.Unmarshal(b, &body); err != nil {
+			return 400, err
+		}
+
+		if body.Transition.TransitionId != transitionId {
+			return 500, err
+		}
+
+		if issueId != "DEVEX-123" {
+			return 404, err
+		}
+
+		return 204, nil
+	}
+}
+func TestDoTransitionAsExpected(t *testing.T) {
+	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
+	input := []byte(`{"issueId":"DEVEX-123","transitionId":"881"}`)
+	actual := doTransitionHandler(input)
+	exp := flyte.Event{
+		EventDef: doTransitionEventDef,
+		Payload: doTransitionRequest{
+			IssueId:      "DEVEX-123",
+			TransitionId: "881",
+		},
+	}
+
+	if !reflect.DeepEqual(actual, exp) {
+		t.Errorf("Expected: %v but got: %v", exp, actual)
 	}
 }
 
-func TestDoTransitionFailure(t *testing.T) {
-	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
-		return http.StatusBadRequest, nil
+func TestDoTransitionFailure_IssueOrUserDoesNotExist(t *testing.T) {
+	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-12333333", "881")
+	input := []byte(`{"issueId":"DEVEX-12333333","transitionId":"881"}`)
+	actual := doTransitionHandler(input)
+	exp := flyte.Event{
+		EventDef: doTransitionFailureEventDef,
+		Payload: doTransitionFailurePayload{
+			IssueId:      "DEVEX-12333333",
+			TransitionId: "881",
+			Error:        "issue or user does not exist",
+		},
 	}
 
-	var inputStruct = struct {
-		IssueId      string `json:"issueId"`
-		TransitionId string `json:"transitionId"`
-	}{"DEVEX-123", "88661"}
-	input := toJson(inputStruct, t)
+	if !reflect.DeepEqual(actual, exp) {
+		t.Errorf("Expected: %v but got: %v", exp, actual)
+	}
+}
 
-	actualEvent := doTransitionHandler(input)
-	expectedEvent := doTransitionFailureEvent(inputStruct, nil)
-	if !reflect.DeepEqual(actualEvent, expectedEvent) {
-		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+func TestDoTransitionFailure_TransitionDoesNotExist(t *testing.T) {
+	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
+	input := []byte(`{"issueId":"DEVEX-123","transitionId":"123456"}`)
+	actual := doTransitionHandler(input)
+	exp := flyte.Event{
+		EventDef: doTransitionFailureEventDef,
+		Payload: doTransitionFailurePayload{
+			IssueId:      "DEVEX-123",
+			TransitionId: "123456",
+			Error:        "unsupported status code 500",
+		},
+	}
+
+	if !reflect.DeepEqual(actual, exp) {
+		t.Errorf("Expected: %v but got: %v", exp, actual)
 	}
 }

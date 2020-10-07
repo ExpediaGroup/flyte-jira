@@ -50,7 +50,13 @@ func doTransitionHandler(input json.RawMessage) flyte.Event {
 		return doTransitionFailureEvent(req, err)
 	}
 
-	return doTransitionEvent(req)
+	return flyte.Event{
+		EventDef: doTransitionEventDef,
+		Payload: doTransitionRequest{
+			IssueId:      req.IssueId,
+			TransitionId: req.TransitionId,
+		},
+	}
 
 }
 
@@ -62,12 +68,5 @@ func doTransitionFailureEvent(request doTransitionRequest, err error) flyte.Even
 			request.TransitionId,
 			err.Error(),
 		},
-	}
-}
-
-func doTransitionEvent(request doTransitionRequest) flyte.Event {
-	return flyte.Event{
-		EventDef: doTransitionEventDef,
-		Payload:  request,
 	}
 }
