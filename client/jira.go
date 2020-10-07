@@ -22,6 +22,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/ExpediaGroup/flyte-jira/domain"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -117,11 +118,18 @@ func DoTransition(issueId, transitionId string) error {
 	b, err := json.Marshal(doTransitionRequest)
 	request, err := constructPostRequest(path, string(b))
 
+	log.Printf("url %v", request.URL)
+	log.Printf("req body %v", request.Body)
+
+
 	if err != nil {
 		return err
 	}
 
 	responseCode, err := SendRequestWithoutResp(request)
+
+	log.Printf("errrr %v statuscode %v", err, responseCode)
+
 	if err != nil {
 		return err
 	}
@@ -172,6 +180,7 @@ func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 
 	path := "/rest/api/2/issue/"
 	request, err := constructPostRequest(path, string(b))
+	log.Printf("urlll %v", request.URL)
 	if err != nil {
 		return issue, err
 	}
