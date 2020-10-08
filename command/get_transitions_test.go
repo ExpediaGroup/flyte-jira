@@ -17,10 +17,12 @@ limitations under the License.
 package command
 
 import (
+	"errors"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
 	"net/http"
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -28,20 +30,22 @@ func TestGetTransitionsWorkingAsExpected(t *testing.T) {
 	initialFunc := client.SendRequest
 	defer func() { client.SendRequest = initialFunc }()
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
+		path := request.URL.Path
+		var subStr = strings.Split(path, "/")
+		if subStr[5] != "DEVEX-567" {
+			return http.StatusNotFound, errors.New("requested jira issue not found")
+		}
+
 		return http.StatusOK, nil
 	}
-	var transitionRequest = struct {
-		IssueId string `json:"issueId"`
-	}{"DEVEX-567"}
 
-	input := toJson(transitionRequest, t)
-
+	input := []byte(`{"issueId":"DEVEX-567"}`)
 	actualEvent := getTransitionsHandler((input))
 	expectedEvent := flyte.Event{
 		EventDef: getTransitionsEventDef,
 		Payload: transitionsSuccessPayload{
 			Id:      "DEVEX-567",
-			Results: nil,
+			Results: []client.Transition{},
 		},
 	}
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
@@ -56,23 +60,17 @@ func TestGetTransitionsFailure(t *testing.T) {
 		reqPath := request.URL.Path
 		expReqPath := "/rest/api/2/issue/DEVEX-567/transitions"
 		if reqPath != expReqPath {
-			return http.StatusNotFound, nil
+			return http.StatusNotFound, errors.New("Issue does not exist")
 		}
 		return http.StatusOK, nil
 	}
-
-	var transitionRequest = struct {
-		IssueId string `json:"issueId"`
-	}{"DEVEX-5677777"}
-
-	input := toJson(transitionRequest, t)
-
+	input := []byte(`{"issueId":"DEVEX-5677777"}`)
 	actualEvent := getTransitionsHandler((input))
 	expectedEvent := flyte.Event{
-		EventDef: getTransitionsEventDef,
-		Payload: transitionsSuccessPayload{
-			Id:      "DEVEX-5677777",
-			Results: nil,
+		EventDef: getTransitionsFailureEventDef,
+		Payload: transitionsFailurePayload{
+			Id:    "DEVEX-5677777",
+			Error: "Issue does not exist",
 		},
 	}
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {

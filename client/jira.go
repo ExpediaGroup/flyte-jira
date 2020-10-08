@@ -236,18 +236,18 @@ func AssignIssue(issueId, username string) error {
 }
 
 func GetTransitions(issueId string) (TransitionsResult, error) {
-	var results TransitionsResult
+	result := TransitionsResult{Transitions: []Transition{}}
 	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
 	request, err := constructGetRequest(path)
 	if err != nil {
-		return results, err
+		return result, err
 	}
-	statusCode, err := SendRequest(request, &results)
+	statusCode, err := SendRequest(request, &result)
 
 	if statusCode != http.StatusOK {
-		return results, err
+		return result, errors.New("Issue does not exist")
 	}
-	return results, nil
+	return result, nil
 }
 
 func LinkIssues(inwardKey, outwardKey, linkType string) error {
