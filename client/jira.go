@@ -92,6 +92,15 @@ type (
 		Inward  string `json:"inward,omitempty"`
 		Outward string `json:"outward,omitempty"`
 	}
+
+	TransitionsResult struct {
+		Transitions []Transition `json:"transitions"`
+	}
+
+	Transition struct {
+		TransitionId   string `json:"id"`
+		TransitionName string `json:"name"`
+	}
 )
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
@@ -224,6 +233,21 @@ func AssignIssue(issueId, username string) error {
 	}
 
 	return err
+}
+
+func GetTransitions(issueId string) (TransitionsResult, error) {
+	var results TransitionsResult
+	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
+	request, err := constructGetRequest(path)
+	if err != nil {
+		return results, err
+	}
+	statusCode, err := SendRequest(request, &results)
+
+	if statusCode != http.StatusOK {
+		return results, err
+	}
+	return results, nil
 }
 
 func LinkIssues(inwardKey, outwardKey, linkType string) error {

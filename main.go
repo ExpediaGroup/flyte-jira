@@ -44,6 +44,7 @@ func main() {
 			command.IssueCreateLinkCommand,
 			command.IssueGetLinkCommand,
 			command.IssueDeleteLinkCommand,
+			command.GetTransitions,
 		},
 	}
 

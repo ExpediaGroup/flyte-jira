@@ -48,8 +48,6 @@ func getTransitionsHandler(input json.RawMessage) flyte.Event {
 
 	results, err := client.GetTransitions(req.IssueId)
 
-	log.Printf("results %v", results.Transitions)
-
 	if err != nil {
 		log.Printf("Error getting transitions for issue %s: %s", req.IssueId, err)
 		return getTransitionsFailureEvent(req, err)

@@ -70,6 +70,7 @@ func infoHandler(input json.RawMessage) flyte.Event {
 
 	issue, err := client.GetIssueInfo(issueId)
 	if err != nil {
+
 		log.Printf("Error fetching IssueInfo for %s: %s", issueId, err)
 		return newInfoFailureEvent(issueId, err)
 	}
