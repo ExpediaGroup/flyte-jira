@@ -140,9 +140,9 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 	return issue, nil
 }
 
-func CreateIssue(project, issueType, title string) (domain.Issue, error) {
+func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
 	var issue domain.Issue
-	issueRequest := newCreateIssueRequest(project, issueType, title)
+	issueRequest := newCreateIssueRequest(project, issueType, summary)
 	b, err := json.Marshal(issueRequest)
 	if err != nil {
 		return issue, err
@@ -155,11 +155,11 @@ func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 	}
 	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusCreated {
-		err = fmt.Errorf("issueTitle='%s' : statusCode=%d", title, statusCode)
+		err = fmt.Errorf("issueSummary='%s' : statusCode=%d", summary, statusCode)
 		return domain.Issue{}, err
 	}
 	if err != nil {
-		err = fmt.Errorf("issueTitle=%s : err=%v", title, err)
+		err = fmt.Errorf("issueSummary=%s : err=%v", summary, err)
 		return domain.Issue{}, err
 	}
 	return issue, nil

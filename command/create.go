@@ -33,8 +33,8 @@ var CreateIssueCommand = flyte.Command{
 func createIssueHandler(input json.RawMessage) flyte.Event {
 	var handlerInput struct {
 		Project   string `json:"project"`
-		IssueType string `json:"issueType"`
-		Title     string `json:"title"`
+		IssueType string `json:"issuetype"`
+		Summary   string `json:"summary"`
 	}
 
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
@@ -42,13 +42,13 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 		log.Println(err)
 		return newCreateFailureEvent(err.Error(), "unknown", "unknown", "unkown")
 	}
-	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
+	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	if err != nil {
 		err = fmt.Errorf("Could not create issue: %v", err)
 		log.Println(err)
-		return newCreateFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
+		return newCreateFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	}
-	return newCreateEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Title)
+	return newCreateEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 }
 
 var createEventDef = flyte.EventDef{
@@ -59,8 +59,8 @@ type createSuccessPayload struct {
 	Id        string `json:"id"`
 	Url       string `json:"url"`
 	Project   string `json:"project"`
-	IssueType string `json:"issueType"`
-	Title     string `json:"title"`
+	IssueType string `json:"issuetype"`
+	Summary   string `json:"summary"`
 }
 
 var createFailureEventDef = flyte.EventDef{
@@ -70,23 +70,23 @@ var createFailureEventDef = flyte.EventDef{
 type createFailurePayload struct {
 	Error     string `json:"error"`
 	Project   string `json:"project"`
-	IssueType string `json:"issueType"`
-	Title     string `json:"title"`
+	IssueType string `json:"issuetype"`
+	Summary   string `json:"summary"`
 }
 
-func newCreateFailureEvent(err, project, issueType, title string) flyte.Event {
+func newCreateFailureEvent(err, project, issueType, summary string) flyte.Event {
 	return flyte.Event{
 		EventDef: createFailureEventDef,
 		Payload: createFailurePayload{
 			Error:     err,
 			Project:   project,
 			IssueType: issueType,
-			Title:     title,
+			Summary:   summary,
 		},
 	}
 }
 
-func newCreateEvent(url, id, project, issueType, title string) flyte.Event {
+func newCreateEvent(url, id, project, issueType, summary string) flyte.Event {
 	return flyte.Event{
 		EventDef: createEventDef,
 		Payload: createSuccessPayload{
@@ -94,7 +94,7 @@ func newCreateEvent(url, id, project, issueType, title string) flyte.Event {
 			Url:       url,
 			Project:   project,
 			IssueType: issueType,
-			Title:     title,
+			Summary:   summary,
 		},
 	}
 }

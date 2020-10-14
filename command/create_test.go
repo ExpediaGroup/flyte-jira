@@ -30,8 +30,8 @@ func TestCreateIssueAsExpected(t *testing.T) {
 
 	var inputStruct = struct {
 		Project   string `json:"project"`
-		IssueType string `json:"issueType"`
-		Title     string `json:"title"`
+		IssueType string `json:"issuetype"`
+		Summary   string `json:"summary"`
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 
@@ -49,13 +49,13 @@ func TestCreateIssueFailure(t *testing.T) {
 
 	var inputStruct = struct {
 		Project   string `json:"project"`
-		IssueType string `json:"issueType"`
-		Title     string `json:"title"`
+		IssueType string `json:"issuetype"`
+		Summary   string `json:"summary"`
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 
 	actualEvent := createIssueHandler(input)
-	expectedEvent := newCreateFailureEvent("Could not create issue: issueTitle='test story' : statusCode=400", "FLYTE", "Story", "test story")
+	expectedEvent := newCreateFailureEvent("Could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}

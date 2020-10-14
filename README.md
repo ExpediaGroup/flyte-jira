@@ -61,26 +61,32 @@ This contains the id of the issue and the error.
 ### CreateIssue command
 This command creates a Jira issue.
 #### Input
-This commands input is the project the issue should be created under, the issue type and the title.
+This command inputs are the project that the issue should be created under, the issue type and the summary (title).
 ```
-"input": {
-    "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+"fields": {
+    "project":  
+       {
+          "key": "TEST"
+       },
+    "issuetype": 
+       {
+          "name": "Story"
+       },
+    "summary": "Fix csetcd bug"
     }
 ```
 #### Output
 This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
 ##### CreatedIssue event
 This is the success event, it contains the id of the issue and the url of the issue along with the input(project,
-issue_type & title) It returns them in the form:
+issuetype & summary) It returns them in the form:
 ```
 "payload": {
     "id": "TEST-123",
     "url": "https://localhost:8100/browse/TEST-123",
     "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+    "issuetype": "Story",
+    "summary": "Fix csetcd bug"
 }
 ```
 ##### CreateIssueFailure event
@@ -89,8 +95,8 @@ This contains the error if the issue cannot be created along with the input (pro
 "payload": {
     "error": "Cannot create issue: Fix csetcd bug: status code 400",
     "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+    "issuetype": "Story",
+    "summary": "Fix csetcd bug"
 }
 ```
 
