@@ -27,14 +27,7 @@ func TestCreateIssueAsExpected(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusCreated, nil
 	}
-
-	var inputStruct = struct {
-		Project   string `json:"project"`
-		IssueType string `json:"issuetype"`
-		Summary   string `json:"summary"`
-	}{"FLYTE", "Story", "test story"}
-	input := toJson(inputStruct, t)
-
+	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story"}`)
 	actualEvent := createIssueHandler(input)
 	expectedEvent := newCreateEvent("/browse/", "", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
@@ -46,14 +39,7 @@ func TestCreateIssueFailure(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusBadRequest, nil
 	}
-
-	var inputStruct = struct {
-		Project   string `json:"project"`
-		IssueType string `json:"issuetype"`
-		Summary   string `json:"summary"`
-	}{"FLYTE", "Story", "test story"}
-	input := toJson(inputStruct, t)
-
+	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story"}`)
 	actualEvent := createIssueHandler(input)
 	expectedEvent := newCreateFailureEvent("Could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
