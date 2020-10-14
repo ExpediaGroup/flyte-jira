@@ -39,7 +39,7 @@ func main() {
 			command.IssueInfoCommand,
 			command.CreateIssueCommand,
 			command.IssueCommentCommand,
-			command.DoTransition,
+			command.Transition,
 			command.SearchIssuesCommand,
 			command.IssueAssignCommand,
 			command.IssueCreateLinkCommand,

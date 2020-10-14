@@ -268,3 +268,46 @@ Based on a `linkId`, the link between 2 issues is deleted.
 The initial request if successful or a failure event if unsuccessful.
 
 ---
+### Transitions
+Jira offers the ability to manage the transitions of issues. Transitions basically mean statuses (Open, To Do, Blocked, etc.) and each transition has its own ID. The transitions in Jira are project based; for example the transition `Blocked` has the ID `811` in the `DEVEX` project, whereas the ID of `Blocked` transition is different in a different project.
+
+We can change the transition for an issue using the transition ID. And given that the transition ID for the same transition is different from on project to another, we need to `GetTransitions` before doing `Transition`.
+
+#### GetTransitions
+Gets the transitions for a given Jira issue, it will get the transition names along with their IDs.
+
+#### Input:
+```json
+{
+ "issueId": "DEVEX-123"
+}
+```
+
+#### Output:
+List of transitions (Name and ID for each transition) like this:
+```
+Name: Blocked - ID: 811
+Name: To Do - ID: 821
+Name: In Review - ID: 831
+Name: Open - ID: 841
+Name: Reopened - ID: 851
+Name: In Progress - ID: 861
+Name: Done - ID: 871
+Name: Rejected - ID: 881
+```
+
+#### Transition
+Change the transition/status for a given Jira issue.
+
+#### Input:
+```json
+{
+ "issueId": "DEVEX-123",
+ "transitionId": "881"
+}
+```
+
+#### Output:
+Message informing that the transition has been done successfully.
+
+---

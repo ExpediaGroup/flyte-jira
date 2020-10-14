@@ -30,8 +30,8 @@ func TestCreateIssueAsExpected(t *testing.T) {
 
 	var inputStruct = struct {
 		Project   string `json:"project"`
-		IssueType string `json:"issuetype"`
-		Title     string `json:"summary"`
+		IssueType string `json:"issueType"`
+		Title     string `json:"title"`
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 
@@ -50,7 +50,7 @@ func TestCreateIssueFailure(t *testing.T) {
 	var inputStruct = struct {
 		Project   string `json:"project"`
 		IssueType string `json:"issueType"`
-		Title     string `json:"summary"`
+		Title     string `json:"title"`
 	}{"FLYTE", "Story", "test story"}
 	input := toJson(inputStruct, t)
 

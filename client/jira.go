@@ -76,7 +76,7 @@ type (
 		TransitionId string `json:"id"`
 	}
 
-	DoTransitionRequest struct {
+	TransitionRequest struct {
 		Transition TransitionIdRequest `json:"transition"`
 	}
 
@@ -128,20 +128,20 @@ func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	return issue, nil
 }
 
-func DoTransition(issueId, transitionId string) error {
+func Transition(issueId, transitionId string) (error, string) {
 	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
-	doTransitionRequest := prepare(transitionId)
-	b, err := json.Marshal(doTransitionRequest)
-	request, err := constructPostRequest(path, string(b))
-
+	transitionRequest := prepare(transitionId)
+	b, err := json.Marshal(transitionRequest)
 	if err != nil {
-		return err
+		return err, ""
 	}
-
-	responseCode, err := SendRequestWithoutResp(request)
-
+	request, err := constructPostRequest(path, string(b))
 	if err != nil {
-		return err
+		return err, ""
+	}
+	responseCode, err := SendRequestWithoutResp(request)
+	if err != nil {
+		return err, request.URL.Path
 	}
 
 	switch responseCode {
@@ -157,7 +157,7 @@ func DoTransition(issueId, transitionId string) error {
 		err = fmt.Errorf("unsupported status code %d", responseCode)
 	}
 
-	return err
+	return err, request.URL.Path
 }
 
 func GetIssueInfo(issueId string) (domain.Issue, error) {
@@ -348,9 +348,9 @@ func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 	return IssueRequest{Fields: fields}
 }
 
-func prepare(transitionId string) DoTransitionRequest {
+func prepare(transitionId string) TransitionRequest {
 	transition := TransitionIdRequest{TransitionId: transitionId}
-	return DoTransitionRequest{Transition: transition}
+	return TransitionRequest{Transition: transition}
 }
 
 func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRequestType {

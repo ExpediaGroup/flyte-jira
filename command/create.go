@@ -33,8 +33,8 @@ var CreateIssueCommand = flyte.Command{
 func createIssueHandler(input json.RawMessage) flyte.Event {
 	var handlerInput struct {
 		Project   string `json:"project"`
-		IssueType string `json:"issuetype"`
-		Title     string `json:"summary"`
+		IssueType string `json:"issueType"`
+		Title     string `json:"title"`
 	}
 
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
@@ -59,8 +59,8 @@ type createSuccessPayload struct {
 	Id        string `json:"id"`
 	Url       string `json:"url"`
 	Project   string `json:"project"`
-	IssueType string `json:"issuetype"`
-	Title     string `json:"summary"`
+	IssueType string `json:"issueType"`
+	Title     string `json:"title"`
 }
 
 var createFailureEventDef = flyte.EventDef{
@@ -70,8 +70,8 @@ var createFailureEventDef = flyte.EventDef{
 type createFailurePayload struct {
 	Error     string `json:"error"`
 	Project   string `json:"project"`
-	IssueType string `json:"issuetype"`
-	Title     string `json:"summary"`
+	IssueType string `json:"issueType"`
+	Title     string `json:"title"`
 }
 
 func newCreateFailureEvent(err, project, issueType, title string) flyte.Event {

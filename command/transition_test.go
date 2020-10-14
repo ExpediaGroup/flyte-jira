@@ -4,21 +4,19 @@ import (
 	"encoding/json"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/HotelsDotCom/flyte-client/flyte"
+	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
-	"reflect"
 	"testing"
 )
 
-type (
-	mockRequestBody struct {
-		TransitionId string `json:"id"`
-	}
+type mockRequestBody struct {
+	TransitionId string `json:"id"`
+}
 
-	DoTransitionRequest struct {
-		Transition mockRequestBody `json:"transition"`
-	}
-)
+type TransitionRequest struct {
+	Transition mockRequestBody `json:"transition"`
+}
 
 func createMockSendRequest(issueId, transitionId string) func(request *http.Request) (int, error) {
 	return func(request *http.Request) (int, error) {
@@ -27,7 +25,7 @@ func createMockSendRequest(issueId, transitionId string) func(request *http.Requ
 			return 400, err
 		}
 
-		body := &DoTransitionRequest{}
+		body := &TransitionRequest{}
 
 		if err := json.Unmarshal(b, &body); err != nil {
 			return 400, err
@@ -44,55 +42,47 @@ func createMockSendRequest(issueId, transitionId string) func(request *http.Requ
 		return 204, nil
 	}
 }
-func TestDoTransitionAsExpected(t *testing.T) {
+func TestTransitionAsExpected(t *testing.T) {
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
 	input := []byte(`{"issueId":"DEVEX-123","transitionId":"881"}`)
-	actual := doTransitionHandler(input)
-	exp := flyte.Event{
-		EventDef: doTransitionEventDef,
-		Payload: doTransitionRequest{
+	actualEvent := transitionHandler(input)
+	expEvent := flyte.Event{
+		EventDef: transitionEventDef,
+		Payload: transitionPayload{
 			IssueId:      "DEVEX-123",
 			TransitionId: "881",
+			RequestURL:   "/rest/api/2/issue/DEVEX-123/transitions",
 		},
 	}
-
-	if !reflect.DeepEqual(actual, exp) {
-		t.Errorf("Expected: %v but got: %v", exp, actual)
-	}
+	assert.Equal(t, expEvent, actualEvent)
 }
 
-func TestDoTransitionFailure_IssueOrUserDoesNotExist(t *testing.T) {
+func TestTransitionFailure_IssueOrUserDoesNotExist(t *testing.T) {
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-12333333", "881")
 	input := []byte(`{"issueId":"DEVEX-12333333","transitionId":"881"}`)
-	actual := doTransitionHandler(input)
+	actual := transitionHandler(input)
 	exp := flyte.Event{
-		EventDef: doTransitionFailureEventDef,
-		Payload: doTransitionFailurePayload{
+		EventDef: transitionFailureEventDef,
+		Payload: transitionFailurePayload{
 			IssueId:      "DEVEX-12333333",
 			TransitionId: "881",
 			Error:        "issue or user does not exist",
 		},
 	}
-
-	if !reflect.DeepEqual(actual, exp) {
-		t.Errorf("Expected: %v but got: %v", exp, actual)
-	}
+	assert.Equal(t, exp, actual)
 }
 
-func TestDoTransitionFailure_TransitionDoesNotExist(t *testing.T) {
+func TestTransitionFailure_TransitionDoesNotExist(t *testing.T) {
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
 	input := []byte(`{"issueId":"DEVEX-123","transitionId":"123456"}`)
-	actual := doTransitionHandler(input)
+	actual := transitionHandler(input)
 	exp := flyte.Event{
-		EventDef: doTransitionFailureEventDef,
-		Payload: doTransitionFailurePayload{
+		EventDef: transitionFailureEventDef,
+		Payload: transitionFailurePayload{
 			IssueId:      "DEVEX-123",
 			TransitionId: "123456",
 			Error:        "unsupported status code 500",
 		},
 	}
-
-	if !reflect.DeepEqual(actual, exp) {
-		t.Errorf("Expected: %v but got: %v", exp, actual)
-	}
+	assert.Equal(t, exp, actual)
 }
