@@ -72,14 +72,6 @@ type (
 		Issues       []domain.Issue `json:"issues"'`
 	}
 
-	TransitionIdRequest struct {
-		TransitionId string `json:"id"`
-	}
-
-	TransitionRequest struct {
-		Transition TransitionIdRequest `json:"transition"`
-	}
-
 	AssignRequest struct {
 		Name string `json:"name,omitempty"`
 	}
@@ -101,6 +93,14 @@ type (
 		Outward string `json:"outward,omitempty"`
 	}
 )
+
+type transition struct {
+	Id string `json:"id"`
+}
+
+type transitionRequest struct {
+	Transition transition `json:"transition"`
+}
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue
@@ -130,7 +130,7 @@ func CommentIssue(issueId, comment string) (domain.Issue, error) {
 
 func Transition(issueId, transitionId string) (error, string) {
 	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
-	transitionRequest := prepare(transitionId)
+	transitionRequest := transitionRequest{Transition: transition{Id: transitionId}}
 	b, err := json.Marshal(transitionRequest)
 	if err != nil {
 		return err, ""
@@ -346,11 +346,6 @@ func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
 
 	fields := RequestFields{Project: project, Summary: summary, IssueType: issue}
 	return IssueRequest{Fields: fields}
-}
-
-func prepare(transitionId string) TransitionRequest {
-	transition := TransitionIdRequest{TransitionId: transitionId}
-	return TransitionRequest{Transition: transition}
 }
 
 func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRequestType {
