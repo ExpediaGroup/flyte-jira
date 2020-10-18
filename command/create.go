@@ -24,7 +24,7 @@ import (
 	"log"
 )
 
-type handlerInput struct {
+type Input struct {
 	Project   string `json:"project"`
 	IssueType string `json:"issuetype"`
 	Summary   string `json:"summary"`
@@ -37,7 +37,7 @@ var CreateIssueCommand = flyte.Command{
 }
 
 func createIssueHandler(input json.RawMessage) flyte.Event {
-	handlerInput := handlerInput{}
+	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
 		err := fmt.Errorf("Could not marshal create client issue input: %s", err)
 		log.Println(err)

@@ -40,21 +40,21 @@ type (
 		Body string `json:"body"`
 	}
 
-	IssueRequest struct {
-		Fields RequestFields `json:"fields"`
+	Issue struct {
+		Fields Fields `json:"fields"`
 	}
 
-	RequestFields struct {
-		Project   ProjectRequest   `json:"project"`
-		Summary   string           `json:"summary"`
-		IssueType IssueTypeRequest `json:"issuetype"`
+	Fields struct {
+		Project   Project `json:"project"`
+		Summary   string  `json:"summary"`
+		IssueType Type    `json:"issuetype"`
 	}
 
-	ProjectRequest struct {
+	Project struct {
 		Key string `json:"key"`
 	}
 
-	IssueTypeRequest struct {
+	Type struct {
 		Name string `json:"name"`
 	}
 
@@ -142,11 +142,11 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 
 func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
 	var issue domain.Issue
-	issueRequest := IssueRequest{
-		Fields: RequestFields{
-			Project:   ProjectRequest{Key: project},
+	issueRequest := Issue{
+		Fields: Fields{
+			Project:   Project{Key: project},
 			Summary:   summary,
-			IssueType: IssueTypeRequest{Name: issueType},
+			IssueType: Type{Name: issueType},
 		}}
 	b, err := json.Marshal(issueRequest)
 	if err != nil {
