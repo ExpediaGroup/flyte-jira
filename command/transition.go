@@ -3,7 +3,7 @@ package command
 import (
 	"encoding/json"
 	"github.com/ExpediaGroup/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-client/flyte"
 	"log"
 )
 
@@ -47,7 +47,7 @@ func transitionHandler(input json.RawMessage) flyte.Event {
 		return transitionFailureEvent(req, err)
 	}
 
-	err, reqURL := client.Transition(req.IssueId, req.TransitionId)
+	reqURL, err := client.Transition(req.IssueId, req.TransitionId)
 
 	if err != nil {
 		log.Printf("Error during a transition for issue %s: %s", req.IssueId, err)

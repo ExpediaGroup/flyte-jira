@@ -94,13 +94,7 @@ type (
 	}
 )
 
-type transition struct {
-	Id string `json:"id"`
-}
 
-type transitionRequest struct {
-	Transition transition `json:"transition"`
-}
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue
@@ -126,38 +120,6 @@ func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	}
 
 	return issue, nil
-}
-
-func Transition(issueId, transitionId string) (error, string) {
-	path := fmt.Sprintf("/rest/api/2/issue/%s/transitions", issueId)
-	transitionRequest := transitionRequest{Transition: transition{Id: transitionId}}
-	b, err := json.Marshal(transitionRequest)
-	if err != nil {
-		return err, ""
-	}
-	request, err := constructPostRequest(path, string(b))
-	if err != nil {
-		return err, ""
-	}
-	responseCode, err := SendRequestWithoutResp(request)
-	if err != nil {
-		return err, request.URL.Path
-	}
-
-	switch responseCode {
-	case http.StatusNoContent:
-		err = nil
-	case http.StatusBadRequest:
-		err = errors.New("no transition specified")
-	case http.StatusUnauthorized:
-		err = errors.New("invalid permission to transition an issue")
-	case http.StatusNotFound:
-		err = errors.New("issue or user does not exist")
-	default:
-		err = fmt.Errorf("unsupported status code %d", responseCode)
-	}
-
-	return err, request.URL.Path
 }
 
 func GetIssueInfo(issueId string) (domain.Issue, error) {
