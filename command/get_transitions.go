@@ -23,21 +23,19 @@ var (
 	}
 )
 
-type (
-	transitionRequest struct {
-		IssueId string `json:"issueId"`
-	}
+type transitionRequest struct {
+	IssueId string `json:"issueId"`
+}
 
-	transitionsSuccessPayload struct {
-		Id      string              `json:"id"`
-		Results []client.Transition `json:"transitions"`
-	}
+type transitionsSuccessPayload struct {
+	Id      string              `json:"id"`
+	Results []client.Transition `json:"transitions"`
+}
 
-	transitionsFailurePayload struct {
-		Id    string `json:"id"`
-		Error string `json:"error"`
-	}
-)
+type transitionsFailurePayload struct {
+	Id    string `json:"id"`
+	Error string `json:"error"`
+}
 
 func getTransitionsHandler(input json.RawMessage) flyte.Event {
 	req := transitionRequest{}
