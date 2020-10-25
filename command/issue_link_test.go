@@ -10,7 +10,7 @@ import (
 	"testing"
 
 	"github.com/ExpediaGroup/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-client/flyte"
 )
 
 func TestLinkCreateIsSuccessful(t *testing.T) {

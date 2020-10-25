@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"github.com/ExpediaGroup/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-client/flyte"
 	"io/ioutil"
 	"net/http"
 	"reflect"
