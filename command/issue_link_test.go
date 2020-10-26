@@ -9,8 +9,8 @@ import (
 	"reflect"
 	"testing"
 
-	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-jira/client"
 )
 
 func TestLinkCreateIsSuccessful(t *testing.T) {

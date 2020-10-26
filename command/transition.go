@@ -2,8 +2,8 @@ package command
 
 import (
 	"encoding/json"
-	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-jira/client"
 	"log"
 )
 
@@ -62,7 +62,6 @@ func transitionHandler(input json.RawMessage) flyte.Event {
 			RequestURL:   reqURL,
 		},
 	}
-
 }
 
 func transitionFailureEvent(request transitionRequest, err error) flyte.Event {
