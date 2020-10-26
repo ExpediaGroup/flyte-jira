@@ -34,7 +34,6 @@ func TestGetTransitionsWorkingAsExpected(t *testing.T) {
 		}
 		return http.StatusOK, nil
 	}
-
 	input := []byte(`{"issueId":"DEVEX-567"}`)
 	actualEvent := getTransitionsHandler(input)
 	expectedEvent := flyte.Event{
