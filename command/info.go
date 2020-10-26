@@ -23,7 +23,7 @@ import (
 
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-jira/domain"
-	"github.com/HotelsDotCom/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-client/flyte"
 )
 
 var (

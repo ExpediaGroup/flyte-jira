@@ -69,10 +69,10 @@ type (
 		StartIndex   int            `json:"startAt"`
 		MaxResults   int            `json:"maxResults"`
 		TotalResults int            `json:"total"`
-		Issues       []domain.Issue `json:"issues"'`
+		Issues       []domain.Issue `json:"issues"`
 	}
 
-	AssignRequest struct {
+	Assignee struct {
 		Name string `json:"name,omitempty"`
 	}
 
@@ -195,7 +195,7 @@ func SearchIssues(query string, startIndex int, maxResults int) (SearchResult, e
 
 func AssignIssue(issueId, username string) error {
 	path := fmt.Sprintf("/rest/api/2/issue/%s/assignee", issueId)
-	b, err := json.Marshal(&AssignRequest{username})
+	b, err := json.Marshal(&Assignee{username})
 	if err != nil {
 		return err
 	}
