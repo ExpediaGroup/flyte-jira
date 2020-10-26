@@ -69,7 +69,7 @@ type (
 		StartIndex   int            `json:"startAt"`
 		MaxResults   int            `json:"maxResults"`
 		TotalResults int            `json:"total"`
-		Issues       []domain.Issue `json:"issues"'`
+		Issues       []domain.Issue `json:"issues"`
 	}
 
 	Assignee struct {
@@ -93,8 +93,6 @@ type (
 		Outward string `json:"outward,omitempty"`
 	}
 )
-
-
 
 func CommentIssue(issueId, comment string) (domain.Issue, error) {
 	var issue domain.Issue

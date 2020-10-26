@@ -2,8 +2,8 @@ package command
 
 import (
 	"encoding/json"
-	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-client/flyte"
+	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
@@ -43,6 +43,10 @@ func createMockSendRequest(issueId, transitionId string) func(request *http.Requ
 	}
 }
 func TestTransitionAsExpected(t *testing.T) {
+	prevState := client.SendRequestWithoutResp
+	defer func() {
+		client.SendRequestWithoutResp = prevState
+	}()
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
 	input := []byte(`{"issueId":"DEVEX-123","transitionId":"881"}`)
 	actualEvent := transitionHandler(input)
@@ -58,6 +62,10 @@ func TestTransitionAsExpected(t *testing.T) {
 }
 
 func TestTransitionFailure_IssueOrUserDoesNotExist(t *testing.T) {
+	prevState := client.SendRequestWithoutResp
+	defer func() {
+		client.SendRequestWithoutResp = prevState
+	}()
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-12333333", "881")
 	input := []byte(`{"issueId":"DEVEX-12333333","transitionId":"881"}`)
 	actual := transitionHandler(input)
@@ -73,6 +81,10 @@ func TestTransitionFailure_IssueOrUserDoesNotExist(t *testing.T) {
 }
 
 func TestTransitionFailure_TransitionDoesNotExist(t *testing.T) {
+	prevState := client.SendRequestWithoutResp
+	defer func() {
+		client.SendRequestWithoutResp = prevState
+	}()
 	client.SendRequestWithoutResp = createMockSendRequest("DEVEX-123", "881")
 	input := []byte(`{"issueId":"DEVEX-123","transitionId":"123456"}`)
 	actual := transitionHandler(input)
