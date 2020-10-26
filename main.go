@@ -39,6 +39,7 @@ func main() {
 			command.IssueInfoCommand,
 			command.CreateIssueCommand,
 			command.IssueCommentCommand,
+			command.GetTransitions,
 			command.Transition,
 			command.SearchIssuesCommand,
 			command.IssueAssignCommand,
