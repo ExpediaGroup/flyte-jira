@@ -40,21 +40,21 @@ type (
 		Body string `json:"body"`
 	}
 
-	IssueRequest struct {
-		Fields RequestFields `json:"fields"`
+	Issue struct {
+		Fields Fields `json:"fields"`
 	}
 
-	RequestFields struct {
-		Project   ProjectRequest   `json:"project"`
-		Summary   string           `json:"summary"`
-		IssueType IssueTypeRequest `json:"issuetype"`
+	Fields struct {
+		Project   Project `json:"project"`
+		Summary   string  `json:"summary"`
+		IssueType Type    `json:"issuetype"`
 	}
 
-	ProjectRequest struct {
+	Project struct {
 		Key string `json:"key"`
 	}
 
-	IssueTypeRequest struct {
+	Type struct {
 		Name string `json:"name"`
 	}
 
@@ -140,9 +140,14 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 	return issue, nil
 }
 
-func CreateIssue(project, issueType, title string) (domain.Issue, error) {
+func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
 	var issue domain.Issue
-	issueRequest := newCreateIssueRequest(project, issueType, title)
+	issueRequest := Issue{
+		Fields: Fields{
+			Project:   Project{Key: project},
+			Summary:   summary,
+			IssueType: Type{Name: issueType},
+		}}
 	b, err := json.Marshal(issueRequest)
 	if err != nil {
 		return issue, err
@@ -155,11 +160,10 @@ func CreateIssue(project, issueType, title string) (domain.Issue, error) {
 	}
 	statusCode, err := SendRequest(request, &issue)
 	if statusCode != http.StatusCreated {
-		err = fmt.Errorf("issueTitle='%s' : statusCode=%d", title, statusCode)
-		return domain.Issue{}, err
+		return domain.Issue{}, fmt.Errorf("issueSummary='%s' : statusCode=%d", summary, statusCode)
 	}
 	if err != nil {
-		err = fmt.Errorf("issueTitle=%s : err=%v", title, err)
+		err = fmt.Errorf("issueSummary=%s : err=%v", summary, err)
 		return domain.Issue{}, err
 	}
 	return issue, nil
@@ -298,14 +302,6 @@ func checkHttpCode(httpCode int, in string) error {
 	}
 
 	return err
-}
-
-func newCreateIssueRequest(projectKey, issueType, summary string) IssueRequest {
-	project := ProjectRequest{projectKey}
-	issue := IssueTypeRequest{issueType}
-
-	fields := RequestFields{Project: project, Summary: summary, IssueType: issue}
-	return IssueRequest{Fields: fields}
 }
 
 func newSearchRequestBody(query string, startIndex int, maxResults int) SearchRequestType {

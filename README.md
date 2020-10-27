@@ -61,36 +61,42 @@ This contains the id of the issue and the error.
 ### CreateIssue command
 This command creates a Jira issue.
 #### Input
-This commands input is the project the issue should be created under, the issue type and the title.
+This command inputs are the project that the issue should be created under, the issue type and the summary (title).
 ```
-"input": {
-    "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+"fields": {
+    "project":  
+       {
+          "key": "TEST"
+       },
+    "issuetype": 
+       {
+          "name": "Story"
+       },
+    "summary": "Fix csetcd bug"
     }
 ```
 #### Output
 This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
 ##### CreatedIssue event
-This is the success event, it contains the id of the issue and the url of the issue along with the input(project,
-issue_type & title) It returns them in the form:
+This is the success event, it contains the id of the issue and the url of the issue along with the input (project,
+issuetype & summary) It returns them in the form:
 ```
 "payload": {
     "id": "TEST-123",
     "url": "https://localhost:8100/browse/TEST-123",
     "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+    "issuetype": "Story",
+    "summary": "Fix csetcd bug"
 }
 ```
 ##### CreateIssueFailure event
-This contains the error if the issue cannot be created along with the input (project, issue_type & title):
+This contains the error if the issue cannot be created along with the input (project, issuetype & summary):
 ```
 "payload": {
     "error": "Cannot create issue: Fix csetcd bug: status code 400",
     "project": "TEST",
-    "issue_type": "Story",
-    "title": "Fix csetcd bug"
+    "issuetype": "Story",
+    "summary": "Fix csetcd bug"
 }
 ```
 
@@ -266,48 +272,5 @@ Based on a `linkId`, the link between 2 issues is deleted.
 
 #### Output:
 The initial request if successful or a failure event if unsuccessful.
-
----
-### Transitions
-Jira offers the ability to manage the transitions of issues. Transitions basically mean statuses (Open, To Do, Blocked, etc.) and each transition has its own ID. The transitions in Jira are project based; for example the transition `Blocked` has the ID `811` in the `DEVEX` project, whereas the ID of `Blocked` transition is different in a different project.
-
-We can change the transition for an issue using the transition ID. And given that the transition ID for the same transition is different from on project to another, we need to `GetTransitions` before doing `Transition`.
-
-#### GetTransitions
-Gets the transitions for a given Jira issue, it will get the transition names along with their IDs.
-
-#### Input:
-```json
-{
- "issueId": "DEVEX-123"
-}
-```
-
-#### Output:
-List of transitions (Name and ID for each transition) like this:
-```
-Name: Blocked - ID: 811
-Name: To Do - ID: 821
-Name: In Review - ID: 831
-Name: Open - ID: 841
-Name: Reopened - ID: 851
-Name: In Progress - ID: 861
-Name: Done - ID: 871
-Name: Rejected - ID: 881
-```
-
-#### Transition
-Change the transition/status for a given Jira issue.
-
-#### Input:
-```json
-{
- "issueId": "DEVEX-123",
- "transitionId": "881"
-}
-```
-
-#### Output:
-Message informing that the transition has been done successfully.
 
 ---
