@@ -78,7 +78,7 @@ This command inputs are the project that the issue should be created under, the 
 #### Output
 This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
 ##### CreatedIssue event
-This is the success event, it contains the id of the issue and the url of the issue along with the input(project,
+This is the success event, it contains the id of the issue and the url of the issue along with the input (project,
 issuetype & summary) It returns them in the form:
 ```
 "payload": {
@@ -90,7 +90,7 @@ issuetype & summary) It returns them in the form:
 }
 ```
 ##### CreateIssueFailure event
-This contains the error if the issue cannot be created along with the input (project, issue_type & title):
+This contains the error if the issue cannot be created along with the input (project, issuetype & summary):
 ```
 "payload": {
     "error": "Cannot create issue: Fix csetcd bug: status code 400",
