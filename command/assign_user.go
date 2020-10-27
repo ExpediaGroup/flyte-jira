@@ -2,8 +2,8 @@ package command
 
 import (
 	"encoding/json"
+	"github.com/ExpediaGroup/flyte-client/flyte"
 	"github.com/ExpediaGroup/flyte-jira/client"
-	"github.com/HotelsDotCom/flyte-client/flyte"
 	"log"
 )
 
@@ -41,7 +41,7 @@ func assignIssueHandler(input json.RawMessage) flyte.Event {
 		log.Printf("Error unmarshaling Issue Assign Request [%s]: %s", input, err)
 		return newAssignFailureEvent(req, err)
 	}
-	
+
 	if err := client.AssignIssue(req.IssueId, req.Username); err != nil {
 		log.Printf("Error assigning Issue %s to User %s: %s", req.IssueId, req.Username, err)
 		return newAssignFailureEvent(req, err)
