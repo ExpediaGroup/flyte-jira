@@ -38,6 +38,7 @@ func main() {
 		Commands: []flyte.Command{
 			command.IssueInfoCommand,
 			command.CreateIssueCommand,
+			command.CreateIncIssueCommand,
 			command.IssueCommentCommand,
 			command.GetTransitions,
 			command.Transition,
