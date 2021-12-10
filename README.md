@@ -77,7 +77,7 @@ This command inputs are the project that the issue should be created under, the 
 ```
 #### Output
 This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
-##### CreatedIssue event
+##### CreateIssue event
 This is the success event, it contains the id of the issue and the url of the issue along with the input (project,
 issuetype & summary) It returns them in the form:
 ```
@@ -97,6 +97,42 @@ This contains the error if the issue cannot be created along with the input (pro
     "project": "TEST",
     "issuetype": "Story",
     "summary": "Fix csetcd bug"
+}
+```
+
+### CreateIncIssue command
+This command creates a Jira issue in a target project (specified in a flow).
+Required a ServiceNow incident and labels (optional) as an argument 
+#### Input
+This command inputs are the project that the issue should be created under, the issue type and the summary (title).
+```
+"input": {
+          "incident": "INC1234567",
+          "issuetype": "Story",
+          "project": "SRO",
+          "summary": "Test",
+          "description": "This JIRA issue was created by Flyte",
+          "labels": [
+            "TEST-LABEL"
+          ]
+        }
+```
+#### Output
+This command can return either a `CreateIncIssue` event or a `CreateIncIssueFailure` event.
+##### CreateIncIssue event
+This is the success event. It returns them in the form:
+```
+"payload": {
+    "id": "10000",
+    "key": "FLYTE-1",
+    "self": "https://jira.expedia.biz/rest/api/2/issue/10000",
+}
+```
+##### CreateIncIssueFailure event
+This contains the error message if the issue cannot be created:
+```
+"payload": {
+    "message": "Cannot create issue: Fix csetcd bug: status code 400",
 }
 ```
 
