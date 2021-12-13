@@ -1,8 +1,8 @@
 ## Overview
 
-![Build Status](https://travis-ci.org/ExpediaGroup/flyte-jira.svg?branch=master)
-[![Docker Stars](https://img.shields.io/docker/stars/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
-[![Docker Pulls](https://img.shields.io/docker/pulls/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
+[![Build Status](https://github.com/ExpediaGroup/flyte-jira/workflows/Build/badge.svg?branch=master&event=push)](https://github.com/ExpediaGroup/flyte-jira/actions?query=workflow:"Build"branch:"master")
+[![Docker Stars](https://img.shields.io/docker/stars/expediagroup/flyte-jira.svg)](https://hub.docker.com/r/expediagroup/flyte-jira)
+[![Docker Pulls](https://img.shields.io/docker/pulls/expediagroup/flyte-jira.svg)](https://hub.docker.com/r/expediagroup/flyte-jira)
 
 The Jira pack provides the ability to create issues, comment on issues and
 to get info about issues.
