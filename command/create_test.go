@@ -42,7 +42,7 @@ func TestCreateIssueFailure(t *testing.T) {
 	}
 	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story"}`)
 	actualEvent := createIssueHandler(input)
-	expectedEvent := newCreateIssueFailureEvent("Could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
+	expectedEvent := newCreateIssueFailureEvent("could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
