@@ -22,102 +22,41 @@ import (
 	"github.com/ExpediaGroup/flyte-client/flyte"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"log"
-	"regexp"
 )
 
-// Input struct presents input options for flyte command
 type Input struct {
-	Project     string   `json:"project"`
-	IssueType   string   `json:"issuetype"`
-	Summary     string   `json:"summary"`
-	Description string   `json:"description"`
-	Labels      []string `json:"labels"`
-	Inc         string   `json:"incident"` // ServiceNow incident
+	Project   string `json:"project"`
+	IssueType string `json:"issuetype"`
+	Summary   string `json:"summary"`
 }
 
-// CreateIssueCommand is a default command to create issue with minimum parameters
 var CreateIssueCommand = flyte.Command{
 	Name:         "CreateIssue",
-	OutputEvents: []flyte.EventDef{createIssueEventDef, createIssueFailureEventDef},
+	OutputEvents: []flyte.EventDef{createEventDef, createFailureEventDef},
 	Handler:      createIssueHandler,
-}
-
-// CreateIncIssueCommand will require an incident argument specified to create jira issue. This is a custom setup for NOCBotV2 app,
-// but can be reused anywhere for same purposes
-var CreateIncIssueCommand = flyte.Command{
-	Name:         "CreateIncIssue",
-	OutputEvents: []flyte.EventDef{createIncIssueEventDef, createIncIssueFailureEventDef},
-	Handler:      createIncIssueHandler,
 }
 
 func createIssueHandler(input json.RawMessage) flyte.Event {
 	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
-		err := fmt.Errorf("could not marshal create client issue input: %s", err)
+		err := fmt.Errorf("Could not marshal create client issue input: %s", err)
 		log.Println(err)
-		return newCreateIssueFailureEvent(err.Error(), "unknown", "unknown", "unkown")
+		return newCreateFailureEvent(err.Error(), "unknown", "unknown", "unkown")
 	}
 	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	if err != nil {
-		err = fmt.Errorf("could not create issue: %v", err)
+		err = fmt.Errorf("Could not create issue: %v", err)
 		log.Println(err)
-		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
+		return newCreateFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	}
-	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
+	return newCreateEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 }
 
-// createIncIssueHandler handles CreateIncIssue NocBotV2 command and returns success/fail flyte.Event
-func createIncIssueHandler(input json.RawMessage) flyte.Event {
-	handlerInput := Input{}
-	if err := json.Unmarshal(input, &handlerInput); err != nil {
-		err := fmt.Errorf("could not marshal create client issue input: %s", err)
-		log.Println(err)
-		return newCreateIssueFailureEvent(err.Error(), "unknown", "unknown", "unknown")
-	}
-	log.Println(fmt.Sprintf("Create JIRA issue command recieved. Params: %+v", handlerInput))
-
-	// Input validation
-	if !incidentPattern(handlerInput.Inc) { // inc name should be valid
-		return flyte.Event{
-			EventDef: createIncIssueFailureEventDef,
-			Payload: CreateIncIssueFailure{
-				Message: fmt.Sprintf("%s: invalid incident number format", handlerInput.Inc),
-			},
-		}
-	}
-
-	if len(handlerInput.Summary) > 255 { // JIRA summary symbols limit is 255
-		return flyte.Event{
-			EventDef: createIncIssueFailureEventDef,
-			Payload: CreateIncIssueFailure{
-				Message: fmt.Sprintf("Too long summary (lenght %d). Limit is 255 symbols", len(handlerInput.Summary)),
-			},
-		}
-	}
-
-	issue, err := client.CreateCustomIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary,
-		handlerInput.Description, handlerInput.Labels)
-	if err != nil {
-		err = fmt.Errorf("could not create issue: %v", err)
-		log.Println(err)
-		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
-	}
-
-	return flyte.Event{
-		EventDef: createIncIssueEventDef,
-		Payload: CreateIncIssueSuccess{
-			ID:   issue.ID,
-			Key:  issue.Key,
-			Self: issue.Self,
-		},
-	}
-}
-
-var createIssueEventDef = flyte.EventDef{
+var createEventDef = flyte.EventDef{
 	Name: "CreateIssue",
 }
 
-type createIssueSuccessPayload struct {
+type createSuccessPayload struct {
 	Id        string `json:"id"`
 	Url       string `json:"url"`
 	Project   string `json:"project"`
@@ -125,21 +64,21 @@ type createIssueSuccessPayload struct {
 	Summary   string `json:"summary"`
 }
 
-var createIssueFailureEventDef = flyte.EventDef{
+var createFailureEventDef = flyte.EventDef{
 	Name: "CreateIssueFailure",
 }
 
-type createIssueFailurePayload struct {
+type createFailurePayload struct {
 	Error     string `json:"error"`
 	Project   string `json:"project"`
 	IssueType string `json:"issuetype"`
 	Summary   string `json:"summary"`
 }
 
-func newCreateIssueFailureEvent(err, project, issueType, summary string) flyte.Event {
+func newCreateFailureEvent(err, project, issueType, summary string) flyte.Event {
 	return flyte.Event{
-		EventDef: createIssueFailureEventDef,
-		Payload: createIssueFailurePayload{
+		EventDef: createFailureEventDef,
+		Payload: createFailurePayload{
 			Error:     err,
 			Project:   project,
 			IssueType: issueType,
@@ -148,45 +87,15 @@ func newCreateIssueFailureEvent(err, project, issueType, summary string) flyte.E
 	}
 }
 
-func newCreateIssueEvent(url, id, project, issueType, summary string) flyte.Event {
+func newCreateEvent(url, id, project, issueType, summary string) flyte.Event {
 	return flyte.Event{
-		EventDef: createIssueEventDef,
-		Payload: createIssueSuccessPayload{
+		EventDef: createEventDef,
+		Payload: createSuccessPayload{
 			Id:        id,
 			Url:       url,
 			Project:   project,
 			IssueType: issueType,
 			Summary:   summary,
 		},
-	}
-}
-
-// Types and functions for createIncIssue command
-type CreateIncIssueSuccess struct { // to be returned into slack
-	ID   string `json:"id"`
-	Key  string `json:"key"`
-	Self string `json:"self"`
-}
-
-type CreateIncIssueFailure struct { // to be returned into slack
-	Message string `json:"message"`
-}
-
-var createIncIssueEventDef = flyte.EventDef{
-	Name: "CreateIncIssue",
-}
-
-var createIncIssueFailureEventDef = flyte.EventDef{
-	Name: "CreateIncIssueFailure",
-}
-
-// incidentPattern checks if provided ServiceNow incident string matches the pattern
-// INC1234567 or INC12345678. Returns bool
-func incidentPattern(s string) bool {
-	var p = regexp.MustCompile(`^INC[0-9]{7,8}$`)
-	if p.MatchString(s) {
-		return true
-	} else {
-		return false
 	}
 }
