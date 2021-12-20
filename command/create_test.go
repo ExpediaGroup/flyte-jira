@@ -17,6 +17,7 @@ limitations under the License.
 package command
 
 import (
+	"github.com/ExpediaGroup/flyte-client/flyte"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"net/http"
 	"reflect"
@@ -29,7 +30,7 @@ func TestCreateIssueAsExpected(t *testing.T) {
 	}
 	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story"}`)
 	actualEvent := createIssueHandler(input)
-	expectedEvent := newCreateEvent("/browse/", "", "FLYTE", "Story", "test story")
+	expectedEvent := newCreateIssueEvent("/browse/", "", "FLYTE", "Story", "test story")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
@@ -41,7 +42,26 @@ func TestCreateIssueFailure(t *testing.T) {
 	}
 	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story"}`)
 	actualEvent := createIssueHandler(input)
-	expectedEvent := newCreateFailureEvent("Could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
+	expectedEvent := newCreateIssueFailureEvent("could not create issue: issueSummary='test story' : statusCode=400", "FLYTE", "Story", "test story")
+	if !reflect.DeepEqual(actualEvent, expectedEvent) {
+		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
+	}
+}
+
+func TestCreateCustomIssueAsExpected(t *testing.T) {
+	client.SendCustomRequest = func(request *http.Request) ([]byte, error) {
+		return []byte(`{}`), nil
+	}
+	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story", "incident":"INC1234567"}`)
+	actualEvent := createIncIssueHandler(input)
+	expectedEvent := flyte.Event{
+		EventDef: createIncIssueEventDef,
+		Payload: CreateIncIssueSuccess{
+			ID:   "",
+			Key:  "",
+			Self: "",
+		},
+	}
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
