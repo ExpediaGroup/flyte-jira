@@ -46,11 +46,11 @@ type (
 	}
 
 	Fields struct {
-		Project     Project  `json:"project"`
-		Summary     string   `json:"summary"`
-		IssueType   Type     `json:"issuetype"`
-		Description string   `json:"description"`
-		Labels      []string `json:"labels"`
+		Project     Project `json:"project"`
+		Summary     string  `json:"summary"`
+		IssueType   Type    `json:"issuetype"`
+		Description string  `json:"description"`
+		Priority    Type    `json:"priority"`
 	}
 
 	Project struct {
@@ -94,12 +94,6 @@ type (
 		Name    string `json:"name"`
 		Inward  string `json:"inward,omitempty"`
 		Outward string `json:"outward,omitempty"`
-	}
-
-	CreateIssueAPIResponse struct {
-		ID   string `json:"id"`
-		Key  string `json:"key"`
-		Self string `json:"self"`
 	}
 )
 
@@ -149,13 +143,15 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 	return issue, nil
 }
 
-func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
+func CreateIssue(project, issueType, summary string, description string, priority string) (domain.Issue, error) {
 	var issue domain.Issue
 	issueRequest := Issue{
 		Fields: Fields{
-			Project:   Project{Key: project},
-			Summary:   summary,
-			IssueType: Type{Name: issueType},
+			Project:     Project{Key: project},
+			Priority:    Type{Name: strings.TrimSpace(priority)},
+			Summary:     summary,
+			IssueType:   Type{Name: issueType},
+			Description: description,
 		}}
 	b, err := json.Marshal(issueRequest)
 	if err != nil {
@@ -163,7 +159,9 @@ func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
 	}
 
 	path := "/rest/api/2/issue/"
+	log.Println(b)
 	request, err := constructPostRequest(path, string(b))
+	log.Println(request)
 	if err != nil {
 		return issue, err
 	}
@@ -176,51 +174,6 @@ func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
 		return domain.Issue{}, err
 	}
 	return issue, nil
-}
-
-// CreateCustomIssue sends create issue API call to JIRA https://tinyurl.com/mr45wbwf (docs)
-// Receives set of arguments to compile REST call body and returns JSON struct of response
-func CreateCustomIssue(project, issueType, summary, desc string, labels []string) (CreateIssueAPIResponse, error) {
-	// var issue domain.Issue
-	issueRequest := Issue{
-		Fields: Fields{
-			Project:     Project{Key: project},
-			Summary:     summary,
-			IssueType:   Type{Name: issueType},
-			Description: desc,
-			Labels:      labels,
-		}}
-	b, err := json.Marshal(issueRequest)
-	if err != nil {
-		return CreateIssueAPIResponse{}, err
-	}
-
-	path := "/rest/api/2/issue/"
-	request, err := constructPostRequest(path, string(b))
-	if err != nil {
-		return CreateIssueAPIResponse{}, err
-	}
-
-	resp, err := SendCustomRequest(request) // resp is []byte
-	if err != nil {
-		err = fmt.Errorf("issueSummary=%s : err=%v", summary, err)
-		return CreateIssueAPIResponse{}, err
-	}
-
-	jsresp := CreateIssueAPIResponse{} // JSON response which returned to command handler
-	err = json.Unmarshal(resp, &jsresp)
-	if err != nil {
-		return CreateIssueAPIResponse{}, fmt.Errorf("error parsing response. %+v", err)
-	}
-
-	log.Println(fmt.Sprintf("Response body from JIRA: %+v", jsresp))
-
-	return CreateIssueAPIResponse{
-		ID:   jsresp.ID,
-		Key:  jsresp.Key,
-		Self: jsresp.Self,
-	}, nil
-
 }
 
 func SearchIssues(query string, startIndex int, maxResults int) (SearchResult, error) {
