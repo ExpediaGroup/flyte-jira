@@ -51,6 +51,7 @@ type (
 		IssueType   Type     `json:"issuetype"`
 		Description string   `json:"description"`
 		Labels      []string `json:"labels"`
+		Priority    Type     `json:"priority"`
 	}
 
 	Project struct {
@@ -149,13 +150,15 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 	return issue, nil
 }
 
-func CreateIssue(project, issueType, summary string) (domain.Issue, error) {
+func CreateIssue(project, issueType, summary string, description string, priority string) (domain.Issue, error) {
 	var issue domain.Issue
 	issueRequest := Issue{
 		Fields: Fields{
-			Project:   Project{Key: project},
-			Summary:   summary,
-			IssueType: Type{Name: issueType},
+			Project:     Project{Key: project},
+			Priority:    Type{Name: strings.TrimSpace(priority)},
+			Summary:     summary,
+			IssueType:   Type{Name: issueType},
+			Description: description,
 		}}
 	b, err := json.Marshal(issueRequest)
 	if err != nil {
