@@ -34,6 +34,7 @@ type Input struct {
 	Labels      []string `json:"labels"`
 	Inc         string   `json:"incident"` // ServiceNow incident
 	Priority    string   `json:"priority"`
+	Reporter    string   `json:"reporter"`
 }
 
 // CreateIssueCommand is a default command to create issue with minimum parameters
@@ -58,13 +59,18 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 		log.Println(err)
 		return newCreateIssueFailureEvent(err.Error(), "unknown", "unknown", "unkown")
 	}
-	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority)
+	if (handlerInput.Summary == "" || handlerInput.Description == "") && (handlerInput.Project == "RCPSUP") {
+		err := fmt.Errorf("Please provide both issue title & description. mandatory fields missing!  ")
+		log.Println(err)
+		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.Description, handlerInput.Summary)
+	}
+	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 	if err != nil {
 		err = fmt.Errorf("Could not create issue: %v", err)
 		log.Println(err)
 		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	}
-	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority)
+	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 }
 
 // createIncIssueHandler handles CreateIncIssue NocBotV2 command and returns success/fail flyte.Event
@@ -126,6 +132,7 @@ type createIssueSuccessPayload struct {
 	Summary     string `json:"summary"`
 	Description string `json:"description"`
 	Priority    string `json:"priority"`
+	Reporter    string `json:"reporter"`
 }
 
 var createIssueFailureEventDef = flyte.EventDef{
@@ -153,7 +160,7 @@ func newCreateIssueFailureEvent(err, project, issueType, summary string) flyte.E
 	}
 }
 
-func newCreateIssueEvent(url, id, project, issueType, summary string, description string, priority string) flyte.Event {
+func newCreateIssueEvent(url, id, project, issueType, summary string, description string, priority string, reporter string) flyte.Event {
 	return flyte.Event{
 		EventDef: createIssueEventDef,
 		Payload: createIssueSuccessPayload{
@@ -164,6 +171,7 @@ func newCreateIssueEvent(url, id, project, issueType, summary string, descriptio
 			Summary:     summary,
 			Description: description,
 			Priority:    priority,
+			Reporter:    reporter,
 		},
 	}
 }

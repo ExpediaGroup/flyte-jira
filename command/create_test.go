@@ -28,9 +28,9 @@ func TestCreateIssueAsExpected(t *testing.T) {
 	client.SendRequest = func(request *http.Request, responseBody interface{}) (int, error) {
 		return http.StatusCreated, nil
 	}
-	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story","description": "test description", "priority": "Medium"}`)
+	input := []byte(`{"project":"FLYTE","issuetype":"Story", "summary": "test story","description": "test description", "priority": "Medium", "reporter": "songupta"}`)
 	actualEvent := createIssueHandler(input)
-	expectedEvent := newCreateIssueEvent("/browse/", "", "FLYTE", "Story", "test story", "test description", "Medium")
+	expectedEvent := newCreateIssueEvent("/browse/", "", "FLYTE", "Story", "test story", "test description", "Medium", "songupta")
 	if !reflect.DeepEqual(actualEvent, expectedEvent) {
 		t.Errorf("Expected: %+v but got: %+v", expectedEvent, actualEvent)
 	}
