@@ -18,12 +18,12 @@ package command
 
 import (
 	"encoding/json"
-	"log"
-	"regexp"
-
 	"github.com/ExpediaGroup/flyte-client/flyte"
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"github.com/ExpediaGroup/flyte-jira/domain"
+	"log"
+	"regexp"
+	"strings"
 )
 
 var (
@@ -49,6 +49,11 @@ type (
 		Status      string `json:"status"`
 		Description string `json:"description"`
 		Assignee    string `json:"assignee"`
+		Reporter    string `json:"reporter"`
+		Components  string `json:"components"`
+		Labels      string `json:"labels"`
+		Priority    string `json:"priority"`
+		Type        string `json:"type"`
 	}
 
 	infoFailurePayload struct {
@@ -73,6 +78,7 @@ func infoHandler(input json.RawMessage) flyte.Event {
 		log.Printf("Error fetching IssueInfo for %s: %s", issueId, err)
 		return newInfoFailureEvent(issueId, err)
 	}
+	log.Printf("The issue returned is : %+v", issue)
 
 	return newInfoEvent(issue)
 }
@@ -85,6 +91,21 @@ func newInfoFailureEvent(issueId string, err error) flyte.Event {
 }
 
 func newInfoEvent(t domain.Issue) flyte.Event {
+	components := t.Fields.Components
+	component_str := ""
+	labels_str := ""
+
+	labels := t.Fields.Labels
+	for i := range components {
+		component_str = component_str + components[i].Name
+		component_str = component_str + ","
+	}
+
+	for i := range labels {
+		labels_str = labels_str + labels[i]
+		labels_str = labels_str + ","
+	}
+
 	return flyte.Event{
 		EventDef: infoEventDef,
 		Payload: infoSuccessPayload{
@@ -92,7 +113,12 @@ func newInfoEvent(t domain.Issue) flyte.Event {
 			Summary:     t.Fields.Summary,
 			Status:      t.Fields.Status.Name,
 			Description: t.Fields.Description,
-			Assignee:    t.Fields.Assignee.Name,
+			Assignee:    t.Fields.Assignee.EmailAddress,
+			Reporter:    t.Fields.Reporter.EmailAddress,
+			Components:  strings.TrimSuffix(component_str, ","),
+			Labels:      strings.TrimSuffix(labels_str, ","),
+			Priority:    t.Fields.Priority.Name,
+			Type:        t.Fields.Type.Name,
 		},
 	}
 }
