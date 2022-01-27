@@ -46,7 +46,12 @@ This is the success event, it contains the Id, Summary, Status, Description and 
     "summary": "Fix client race condition",
     "status": "In Progress",
     "description": "The client experiences.....",
-    "assignee": "jsmith",
+    "assignee": "jsmith@expediagroup.com",
+    "reporter": "test@expediagroup.com",
+    "priority": "Medium",
+    "components": "Compute Platform",
+    "labels": "feature-request",
+    "type": "Support"
 }
 ```
 ##### InfoFailure event
@@ -86,7 +91,10 @@ issuetype & summary) It returns them in the form:
     "url": "https://localhost:8100/browse/TEST-123",
     "project": "TEST",
     "issuetype": "Story",
-    "summary": "Fix csetcd bug"
+    "summary": "Fix csetcd bug",
+    "priority": "Medium",
+    "reporter": "songupta@expediagroup.com",
+    "description": "This is issue description"
 }
 ```
 ##### CreateIssueFailure event
