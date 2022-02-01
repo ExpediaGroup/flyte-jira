@@ -19,11 +19,16 @@ package client
 import (
 	"crypto/tls"
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 	"net/http"
 )
 
-var SendRequest = sendRequest
-var SendRequestWithoutResp = sendRequestWithoutResp
+var (
+	SendRequest            = sendRequest
+	SendCustomRequest      = sendCustomRequest
+	SendRequestWithoutResp = sendRequestWithoutResp
+)
 
 func sendRequest(request *http.Request, responseBody interface{}) (responseCode int, err error) {
 	tr := &http.Transport{
@@ -53,4 +58,29 @@ func sendRequestWithoutResp(request *http.Request) (responseCode int, err error)
 	}
 	defer resp.Body.Close()
 	return resp.StatusCode, nil
+}
+
+// sendCustomRequest takes http.Request as an argument and return raw []byte of http.Response body.
+// It can be used in cases where we need to parse the response in some custom way in command handlers
+func sendCustomRequest(request *http.Request) ([]byte, error) {
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+
+	client := &http.Client{Transport: tr}
+	var res *http.Response
+	res, err := client.Do(request)
+	if err != nil {
+		return nil, err
+	}
+
+	defer res.Body.Close()
+
+	body, err := ioutil.ReadAll(res.Body)
+	if err != nil {
+		fmt.Println(err)
+		return nil, err
+	}
+
+	return body, nil
 }

@@ -1,8 +1,8 @@
 ## Overview
 
-![Build Status](https://travis-ci.org/ExpediaGroup/flyte-jira.svg?branch=master)
-[![Docker Stars](https://img.shields.io/docker/stars/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
-[![Docker Pulls](https://img.shields.io/docker/pulls/hotelsdotcom/flyte-jira.svg)](https://hub.docker.com/r/hotelsdotcom/flyte-jira)
+[![Build Status](https://github.com/ExpediaGroup/flyte-jira/workflows/Build/badge.svg?branch=master&event=push)](https://github.com/ExpediaGroup/flyte-jira/actions?query=workflow:"Build"branch:"master")
+[![Docker Stars](https://img.shields.io/docker/stars/expediagroup/flyte-jira.svg)](https://hub.docker.com/r/expediagroup/flyte-jira)
+[![Docker Pulls](https://img.shields.io/docker/pulls/expediagroup/flyte-jira.svg)](https://hub.docker.com/r/expediagroup/flyte-jira)
 
 The Jira pack provides the ability to create issues, comment on issues and
 to get info about issues.
@@ -46,7 +46,12 @@ This is the success event, it contains the Id, Summary, Status, Description and 
     "summary": "Fix client race condition",
     "status": "In Progress",
     "description": "The client experiences.....",
-    "assignee": "jsmith",
+    "assignee": "jsmith@expediagroup.com",
+    "reporter": "test@expediagroup.com",
+    "priority": "Medium",
+    "components": "Compute Platform",
+    "labels": "feature-request",
+    "type": "Support"
 }
 ```
 ##### InfoFailure event
@@ -77,7 +82,7 @@ This command inputs are the project that the issue should be created under, the 
 ```
 #### Output
 This command can return either a `CreateIssue` event or a `CreateIssueFailure` event.
-##### CreatedIssue event
+##### CreateIssue event
 This is the success event, it contains the id of the issue and the url of the issue along with the input (project,
 issuetype & summary) It returns them in the form:
 ```
@@ -86,7 +91,10 @@ issuetype & summary) It returns them in the form:
     "url": "https://localhost:8100/browse/TEST-123",
     "project": "TEST",
     "issuetype": "Story",
-    "summary": "Fix csetcd bug"
+    "summary": "Fix csetcd bug",
+    "priority": "Medium",
+    "reporter": "songupta@expediagroup.com",
+    "description": "This is issue description"
 }
 ```
 ##### CreateIssueFailure event
@@ -97,6 +105,42 @@ This contains the error if the issue cannot be created along with the input (pro
     "project": "TEST",
     "issuetype": "Story",
     "summary": "Fix csetcd bug"
+}
+```
+
+### CreateIncIssue command
+This command creates a Jira issue in a target project (specified in a flow).
+Required a ServiceNow incident and labels (optional) as an argument 
+#### Input
+This command inputs are the project that the issue should be created under, the issue type and the summary (title).
+```
+"input": {
+          "incident": "INC1234567",
+          "issuetype": "Story",
+          "project": "SRO",
+          "summary": "Test",
+          "description": "This JIRA issue was created by Flyte",
+          "labels": [
+            "TEST-LABEL"
+          ]
+        }
+```
+#### Output
+This command can return either a `CreateIncIssue` event or a `CreateIncIssueFailure` event.
+##### CreateIncIssue event
+This is the success event. It returns them in the form:
+```
+"payload": {
+    "id": "10000",
+    "key": "FLYTE-1",
+    "self": "https://jira.expedia.biz/rest/api/2/issue/10000",
+}
+```
+##### CreateIncIssueFailure event
+This contains the error message if the issue cannot be created:
+```
+"payload": {
+    "message": "Cannot create issue: Fix csetcd bug: status code 400",
 }
 ```
 
