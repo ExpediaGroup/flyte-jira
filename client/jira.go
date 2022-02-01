@@ -45,6 +45,10 @@ type (
 		Fields Fields `json:"fields"`
 	}
 
+	CustomIncIssue struct {
+		Fields CustomIncFields `json:"fields"`
+	}
+
 	Fields struct {
 		Project     Project  `json:"project"`
 		Summary     string   `json:"summary"`
@@ -53,6 +57,14 @@ type (
 		Labels      []string `json:"labels"`
 		Priority    Type     `json:"priority"`
 		Reporter    Type     `json:"reporter"`
+	}
+
+	CustomIncFields struct {
+		Project     Project  `json:"project"`
+		Summary     string   `json:"summary"`
+		IssueType   Type     `json:"issuetype"`
+		Description string   `json:"description"`
+		Labels      []string `json:"labels"`
 	}
 
 	Project struct {
@@ -187,8 +199,8 @@ func CreateIssue(project, issueType, summary string, description string, priorit
 // Receives set of arguments to compile REST call body and returns JSON struct of response
 func CreateCustomIssue(project, issueType, summary, desc string, labels []string) (CreateIssueAPIResponse, error) {
 	// var issue domain.Issue
-	issueRequest := Issue{
-		Fields: Fields{
+	issueRequest := CustomIncIssue{
+		Fields: CustomIncFields{
 			Project:     Project{Key: project},
 			Summary:     summary,
 			IssueType:   Type{Name: issueType},
