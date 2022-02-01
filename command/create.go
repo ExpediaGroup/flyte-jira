@@ -66,7 +66,7 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 }
 
-// createIncIssueHandler handles CreateIncIssue NocBotV2 command and returns success/fail flyte.Event
+// createIncIssueHandler handles CreateIncIssue IMBot command and returns success/fail flyte.Event
 func createIncIssueHandler(input json.RawMessage) flyte.Event {
 	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
