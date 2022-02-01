@@ -33,6 +33,8 @@ type Input struct {
 	Description string   `json:"description"`
 	Labels      []string `json:"labels"`
 	Inc         string   `json:"incident"` // ServiceNow incident
+	Priority    string   `json:"priority"`
+	Reporter    string   `json:"reporter"`
 }
 
 // CreateIssueCommand is a default command to create issue with minimum parameters
@@ -53,17 +55,22 @@ var CreateIncIssueCommand = flyte.Command{
 func createIssueHandler(input json.RawMessage) flyte.Event {
 	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
-		err := fmt.Errorf("could not marshal create client issue input: %s", err)
+		err := fmt.Errorf("Could not marshal create client issue input: %s", err)
 		log.Println(err)
 		return newCreateIssueFailureEvent(err.Error(), "unknown", "unknown", "unkown")
 	}
-	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
+	if (handlerInput.Summary == "" || handlerInput.Description == "") && (handlerInput.Project == "RCPSUP") {
+		err := fmt.Errorf("Please provide both issue title & description. mandatory fields missing!  ")
+		log.Println(err)
+		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.Description, handlerInput.Summary)
+	}
+	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 	if err != nil {
-		err = fmt.Errorf("could not create issue: %v", err)
+		err = fmt.Errorf("Could not create issue: %v", err)
 		log.Println(err)
 		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
 	}
-	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary)
+	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 }
 
 // createIncIssueHandler handles CreateIncIssue IMBot command and returns success/fail flyte.Event
@@ -118,11 +125,14 @@ var createIssueEventDef = flyte.EventDef{
 }
 
 type createIssueSuccessPayload struct {
-	Id        string `json:"id"`
-	Url       string `json:"url"`
-	Project   string `json:"project"`
-	IssueType string `json:"issuetype"`
-	Summary   string `json:"summary"`
+	Id          string `json:"id"`
+	Url         string `json:"url"`
+	Project     string `json:"project"`
+	IssueType   string `json:"issuetype"`
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
+	Priority    string `json:"priority"`
+	Reporter    string `json:"reporter"`
 }
 
 var createIssueFailureEventDef = flyte.EventDef{
@@ -130,10 +140,12 @@ var createIssueFailureEventDef = flyte.EventDef{
 }
 
 type createIssueFailurePayload struct {
-	Error     string `json:"error"`
-	Project   string `json:"project"`
-	IssueType string `json:"issuetype"`
-	Summary   string `json:"summary"`
+	Error       string `json:"error"`
+	Project     string `json:"project"`
+	IssueType   string `json:"issuetype"`
+	Summary     string `json:"summary"`
+	Description string `json:"description"`
+	Priority    string `json:"priority"`
 }
 
 func newCreateIssueFailureEvent(err, project, issueType, summary string) flyte.Event {
@@ -148,15 +160,18 @@ func newCreateIssueFailureEvent(err, project, issueType, summary string) flyte.E
 	}
 }
 
-func newCreateIssueEvent(url, id, project, issueType, summary string) flyte.Event {
+func newCreateIssueEvent(url, id, project, issueType, summary string, description string, priority string, reporter string) flyte.Event {
 	return flyte.Event{
 		EventDef: createIssueEventDef,
 		Payload: createIssueSuccessPayload{
-			Id:        id,
-			Url:       url,
-			Project:   project,
-			IssueType: issueType,
-			Summary:   summary,
+			Id:          id,
+			Url:         url,
+			Project:     project,
+			IssueType:   issueType,
+			Summary:     summary,
+			Description: description,
+			Priority:    priority,
+			Reporter:    reporter,
 		},
 	}
 }
