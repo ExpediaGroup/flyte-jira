@@ -25,38 +25,23 @@ import (
 	"regexp"
 )
 
-// Input struct presents input options for CreateIssue flyte command
 type Input struct {
 	Project     string   `json:"project"`
 	IssueType   string   `json:"issuetype"`
 	Summary     string   `json:"summary"`
 	Description string   `json:"description"`
 	Labels      []string `json:"labels"`
-	Inc         string   `json:"incident"` // ServiceNow incident
+	Inc         string   `json:"incident"`
 	Priority    string   `json:"priority"`
 	Reporter    string   `json:"reporter"`
 }
 
-// IncIssueInput struct presents input options for CreateIncIssue flyte command.
-// This is a custom command which will have it's own flows used by various team.
-type IncIssueInput struct {
-	Project     string   `json:"project"`
-	IssueType   string   `json:"issuetype"`
-	Summary     string   `json:"summary"`
-	Description string   `json:"description"`
-	Labels      []string `json:"labels"`
-	Inc         string   `json:"incident"` // ServiceNow incident
-}
-
-// CreateIssueCommand is a default command to create issue with minimum parameters
 var CreateIssueCommand = flyte.Command{
 	Name:         "CreateIssue",
 	OutputEvents: []flyte.EventDef{createIssueEventDef, createIssueFailureEventDef},
 	Handler:      createIssueHandler,
 }
 
-// CreateIncIssueCommand will require an incident argument specified to create jira issue. This is a custom setup for NOCBotV2 app,
-// but can be reused anywhere for same purposes
 var CreateIncIssueCommand = flyte.Command{
 	Name:         "CreateIncIssue",
 	OutputEvents: []flyte.EventDef{createIncIssueEventDef, createIncIssueFailureEventDef},
@@ -86,7 +71,7 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 
 // createIncIssueHandler handles CreateIncIssue IMBot command and returns success/fail flyte.Event
 func createIncIssueHandler(input json.RawMessage) flyte.Event {
-	handlerInput := IncIssueInput{}
+	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
 		err := fmt.Errorf("could not marshal create client issue input: %s", err)
 		log.Println(err)
