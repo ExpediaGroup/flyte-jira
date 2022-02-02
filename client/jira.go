@@ -42,14 +42,14 @@ type (
 	}
 
 	Issue struct {
-		Fields Fields `json:"fields"`
+		Fields IssueFields `json:"fields"`
 	}
 
 	CustomIncIssue struct {
-		Fields CustomIncFields `json:"fields"`
+		Fields CustomIncIssueFields `json:"fields"`
 	}
 
-	Fields struct {
+	IssueFields struct {
 		Project     Project  `json:"project"`
 		Summary     string   `json:"summary"`
 		IssueType   Type     `json:"issuetype"`
@@ -59,7 +59,7 @@ type (
 		Reporter    Type     `json:"reporter"`
 	}
 
-	CustomIncFields struct {
+	CustomIncIssueFields struct {
 		Project     Project  `json:"project"`
 		Summary     string   `json:"summary"`
 		IssueType   Type     `json:"issuetype"`
@@ -166,7 +166,7 @@ func GetIssueInfo(issueId string) (domain.Issue, error) {
 func CreateIssue(project, issueType, summary string, description string, priority string, reporter string) (domain.Issue, error) {
 	var issue domain.Issue
 	issueRequest := Issue{
-		Fields: Fields{
+		Fields: IssueFields{
 			Project:     Project{Key: strings.TrimSpace(project)},
 			Priority:    Type{Name: strings.TrimSpace(priority)},
 			Summary:     summary,
@@ -200,7 +200,7 @@ func CreateIssue(project, issueType, summary string, description string, priorit
 func CreateCustomIssue(project, issueType, summary, desc string, labels []string) (CreateIssueAPIResponse, error) {
 	// var issue domain.Issue
 	issueRequest := CustomIncIssue{
-		Fields: CustomIncFields{
+		Fields: CustomIncIssueFields{
 			Project:     Project{Key: project},
 			Summary:     summary,
 			IssueType:   Type{Name: issueType},
