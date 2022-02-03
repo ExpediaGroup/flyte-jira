@@ -25,27 +25,23 @@ import (
 	"regexp"
 )
 
-// Input struct presents input options for flyte command
 type Input struct {
 	Project     string   `json:"project"`
 	IssueType   string   `json:"issuetype"`
 	Summary     string   `json:"summary"`
 	Description string   `json:"description"`
 	Labels      []string `json:"labels"`
-	Inc         string   `json:"incident"` // ServiceNow incident
+	Inc         string   `json:"incident"`
 	Priority    string   `json:"priority"`
 	Reporter    string   `json:"reporter"`
 }
 
-// CreateIssueCommand is a default command to create issue with minimum parameters
 var CreateIssueCommand = flyte.Command{
 	Name:         "CreateIssue",
 	OutputEvents: []flyte.EventDef{createIssueEventDef, createIssueFailureEventDef},
 	Handler:      createIssueHandler,
 }
 
-// CreateIncIssueCommand will require an incident argument specified to create jira issue. This is a custom setup for NOCBotV2 app,
-// but can be reused anywhere for same purposes
 var CreateIncIssueCommand = flyte.Command{
 	Name:         "CreateIncIssue",
 	OutputEvents: []flyte.EventDef{createIncIssueEventDef, createIncIssueFailureEventDef},
@@ -73,7 +69,7 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 	return newCreateIssueEvent(fmt.Sprintf("%s/browse/%s", client.JiraConfig.Host, issue.Key), issue.Key, handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 }
 
-// createIncIssueHandler handles CreateIncIssue NocBotV2 command and returns success/fail flyte.Event
+// createIncIssueHandler handles CreateIncIssue IMBot command and returns success/fail flyte.Event
 func createIncIssueHandler(input json.RawMessage) flyte.Event {
 	handlerInput := Input{}
 	if err := json.Unmarshal(input, &handlerInput); err != nil {
