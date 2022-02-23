@@ -23,7 +23,6 @@ import (
 	"github.com/ExpediaGroup/flyte-jira/client"
 	"log"
 	"regexp"
-	"strings"
 )
 
 type Input struct {
@@ -61,7 +60,6 @@ func createIssueHandler(input json.RawMessage) flyte.Event {
 		log.Println(err)
 		return newCreateIssueFailureEvent(err.Error(), handlerInput.Project, handlerInput.Description, handlerInput.Summary)
 	}
-	updateSummaryForReactionBasedRequest(&handlerInput)
 	issue, err := client.CreateIssue(handlerInput.Project, handlerInput.IssueType, handlerInput.Summary, handlerInput.Description, handlerInput.Priority, handlerInput.Reporter)
 	if err != nil {
 		err = fmt.Errorf("Could not create issue: %v", err)
@@ -201,20 +199,5 @@ func incidentPattern(s string) bool {
 		return true
 	} else {
 		return false
-	}
-}
-
-func updateSummaryForReactionBasedRequest(s *Input) {
-	lenoftitle := 0
-	if s.Summary == "ReactionBased" {
-		s.Summary = s.Description
-		if len(s.Description) > 70 {
-			lenoftitle = 70
-		} else {
-			lenoftitle = len(s.Description)
-		}
-		title := s.Description[0:lenoftitle]
-		title = strings.ReplaceAll(title, "\n", "")
-		s.Summary = title + "..."
 	}
 }
